@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="container">
+    <h1>Welcom</h1>
+    <form id="auth-form" action="{{url_for('login')}}" method="post">
+        <input
+        type="text" 
+        name="username" 
+        placeholder="username"
+        class="input-field"
+        />
+
+        <input
+        type="password" 
+        name="senha" 
+        placeholder="senha"
+        class="input-field"
+        />
+
+       <input type="button" value="Login" class="btn btn-login" onclick="setActionForm('login')"/>
+       
+        <input type="button" value="Cadastro" class="btn btn-login" onclick="setActionForm('cadastro')"/>
+
+        
+    </form>
+</div>
+
+<script>
+    function setActionForm(action){
+        const form = document.getElementById("auth-form");
+        if (action === 'login'){
+            form.action = "{{ url_for('login') }}";
+        } else if (action === 'cadastro'){
+            form.action = "{{ url_for('cadastro') }}";
+        }
+        form.method = "post";
+        form.submit();
+    }
+</script>
+
+
+{% endblock %}
