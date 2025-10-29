@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Miriam+Libre:wght@400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Indie+Flower&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
+
+body.login-page{
+    background-image: url(assets/Group\ 60.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 90vh;
+}
+
+.container_login{
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    height: 78%;
+    justify-content: center;
+    align-self: center;
+    justify-self: center;
+    align-content: center;
+    text-align: center;
+    background-color: #FFF7EF;
+    border-radius: 20px;
+    padding: 38px;
+    box-shadow: 0 4px 12px rgba(149, 200, 200, 0.72);
+    margin-top: 55px;
+}
+
+.form-conta{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    text-align: left;
+    font-family: "Montserrat", sans-serif;
+    color: #C87B75;
+    font-weight: 600;
+    padding-top: 20px;
+}
+
+.container_login p{
+    margin-top: 0px;
+    font-family: "Montserrat", sans-serif;
+    color: #C87B75;
+    font-size: 12px;
+}
+
+label{
+    margin-bottom: 5px;
+}
+
+.input-field{
+    margin-bottom: 25px;
+    background-color: #E7E8E9;
+    border: none;
+    height: 30px;
+    border-radius: 5px;
+}
+
+.input-field::placeholder{
+    font-family: "Montserrat", sans-serif;
+    color: #b6b5b5;
+}
+
+.btn_btn-login{
+    width: 70%;
+    align-self: center;
+    border: none;
+    border-radius: 5px;
+    background-color: #C87B75;
+    height: 40px;
+    font-family: "Montserrat", sans-serif;
+    color: #FFF7EF;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+
+.container_login span{
+    font-weight: 700;
+
+}
+
+.container_login a{
+    text-decoration:underline ;
+    color: #C87B75;
+}
+
+.container_login h1{
+    font-family: "Indie Flower", cursive;
+    color: #C87B75;
+    font-weight: 600;
+    font-size: 35px;
+    border: #C87B75 2px;
+}
+
+.icone-login{
+    width: 45%;
+    align-self: center;
+    margin-top: -50px;
+}

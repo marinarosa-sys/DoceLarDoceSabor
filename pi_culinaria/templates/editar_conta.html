@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container">
+    <h1>Editar Conta</h1>
+
+    {% if sucesso %}
+        <p style="color: green;">{{ sucesso }}</p>
+    {% endif %}
+    {% if erro %}
+        <p style="color: red;">{{ erro }}</p>
+    {% endif %}
+
+    <form action="{{ url_for('editar_conta') }}" method="post">
+        <label>Nome completo:</label>
+        <input type="text" name="nome_completo" value="{{ user.nome_completo }}" required class="input-field" />
+
+        <label>Usuário:</label>
+        <input type="text" name="username" value="{{ user.username }}" required class="input-field" />
+
+        <label>E-mail:</label>
+        <input type="email" name="email_usuario" value="{{ user.email_usuario }}" required class="input-field" />
+
+        <label>Nova senha (deixe em branco para não alterar):</label>
+        <input type="password" name="senha" placeholder="Digite uma nova senha" class="input-field" />
+
+        <input type="submit" value="Salvar alterações" class="btn btn-login" />
+    </form>
+
+    <hr>
+    <h3>Desativar minha conta</h3>
+    <form action="{{ url_for('desativar_conta') }}" method="post">
+        <label>Confirme sua senha:</label>
+        <input type="password" name="senha_confirm" placeholder="Digite sua senha" required class="input-field" />
+        <input type="submit" value="Desativar minha conta" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja desativar sua conta?')" />
+    </form>
+
+    <p><a href="{{ url_for('dashboard') }}">Voltar</a></p>
+</div>
+{% endblock %}
