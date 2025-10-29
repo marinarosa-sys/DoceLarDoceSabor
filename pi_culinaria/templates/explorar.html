@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorar Receitas</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <h1>🍽️ Explorar Receitas</h1>
+    <div class="acoes">
+      <a href="{{ url_for('nova_receita') }}" class="btn">➕ Nova Receita</a>
+    </div>
+
+    <!-- Barra de busca -->
+    <form method="get" action="{{ url_for('explorar') }}" class="search-bar">
+      <input type="text" name="q" placeholder="Buscar receita..." value="{{ request.args.get('q', '') }}">
+      <button type="submit">Buscar</button>
+    </form>
+
+    <div class="grid">
+      {% for receita in receitas %}
+      <article class="card">
+        <img src="{{ url_for('static', filename=receita.imagem) }}" alt="{{ receita.titulo }}">
+        <div class="card-content">
+          <h2>{{ receita.titulo }}</h2>
+          <p><strong>Categoria:</strong> {{ receita.categoria or 'Não informada' }}</p>
+
+          {% if receita.utensilios %}
+          <p><strong>Utensílios:</strong> {{ receita.utensilios }}</p>
+          {% endif %}
+
+          {% if receita.ingredientes_receita %}
+          <p><strong>Ingredientes:</strong></p>
+          <ul>
+            {% for ir in receita.ingredientes_receita %}
+              <li>{{ ir.quantidade_ingrediente_receita }} {{ ir.ingrediente.nome_ingrediente }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          <a class="btn" href="{{ url_for('detalhe_receita', id=receita.id) }}">Ver Detalhes</a>
+        </div>
+      </article>
+      {% endfor %}
+
+      {% if not receitas %}
+      <p>Nenhuma receita encontrada.</p>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>
