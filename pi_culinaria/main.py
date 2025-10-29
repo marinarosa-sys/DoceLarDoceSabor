@@ -43,7 +43,7 @@ def home():
         return render_template("index.html")
 
 # Rota Login
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form['username']
@@ -203,10 +203,6 @@ if __name__ == "__main__":
             db.create_all()
             db.session.execute(text("SELECT 1"))
             print("✅ Conectado ao MySQL e tabelas criadas/verificadas com sucesso!")
-
-            # ✅ Popula o banco apenas se estiver vazio
-            if Receita.query.count() == 0:
-                popular_receitas()
 
         except Exception as e:
             print("❌ Erro ao conectar ou criar tabelas:", e)
