@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ receita.titulo }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container receita-detalhe">
+    <a href="{{ url_for('explorar') }}" class="voltar">⬅ Voltar</a>
+
+    <section class="receita-info">
+      <h1>{{ receita.titulo }}</h1>
+      <img src="{{ url_for('static', filename=receita.imagem) }}" 
+           alt="{{ receita.titulo }}"
+           width="400" height="300">
+
+      <p><strong>Categoria:</strong> {{ receita.categoria or 'Não informada' }}</p>
+
+      {% if receita.utensilios %}
+      <p><strong>Utensílios:</strong> {{ receita.utensilios }}</p>
+      {% endif %}
+    </section>
+
+    <section class="receita-ingredientes">
+      <h2>🧂 Ingredientes</h2>
+      <ul>
+        {% for ir in receita.ingredientes_receita %}
+          <li>{{ ir.quantidade_ingrediente_receita }} {{ ir.ingrediente.nome_ingrediente }}</li>
+        {% else %}
+          <p>Nenhum ingrediente informado.</p>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="receita-instrucoes">
+      <h2>👩‍🍳 Modo de preparo</h2>
+
+      {% set etapas = receita.instrucoes.split('.') %}
+      <ol>
+        {% for etapa in etapas %}
+          {% if etapa.strip() %}
+            <li>{{ etapa.strip() }}.</li>
+          {% endif %}
+        {% endfor %}
+      </ol>
+    </section>
+  </main>
+</body>
+</html>

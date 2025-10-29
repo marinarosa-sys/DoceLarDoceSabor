@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Receita</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    function adicionarIngrediente() {
+      const container = document.getElementById('ingredientes-container');
+      const novoIngrediente = document.createElement('div');
+      novoIngrediente.classList.add('ingrediente-item');
+      novoIngrediente.innerHTML = `
+        <input type="text" name="nome_ingrediente[]" placeholder="Ingrediente" required>
+        <input type="text" name="quantidade_ingrediente[]" placeholder="Quantidade" required>
+        <input type="text" name="unidade_medida[]" placeholder="Unidade (ex: g, ml, xícara)">
+        <button type="button" onclick="removerIngrediente(this)">❌</button>
+      `;
+      container.appendChild(novoIngrediente);
+    }
+
+    function removerIngrediente(botao) {
+      botao.parentElement.remove();
+    }
+  </script>
+</head>
+<body>
+  <main class="container">
+    <h1>➕ Cadastrar Nova Receita</h1>
+
+    <form method="POST" action="{{ url_for('nova_receita') }}" class="form-receita" enctype="multipart/form-data">
+
+      <label for="titulo">Título da Receita:</label>
+      <input type="text" id="titulo" name="titulo" required>
+
+      <label for="imagem">Imagem da Receita:</label>
+      <input type="file" id="imagem" name="imagem" accept="image/*">
+
+
+      <label for="categoria">Categoria:</label>
+      <select id="categoria" name="categoria">
+        <option value="Entrada">Entrada</option>
+        <option value="Prato Principal">Prato Principal</option>
+        <option value="Acompanhamento">Acompanhamento</option>
+        <option value="Sobremesa">Sobremesa</option>
+        <option value="Outros">Outros</option>
+      </select>
+
+      <label for="utensilios">Utensílios:</label>
+      <textarea id="utensilios" name="utensilios" rows="2"></textarea>
+
+      <label for="instrucoes">Modo de Preparo:</label>
+      <textarea id="instrucoes" name="instrucoes" rows="5" required></textarea>
+
+      <h3>🥣 Ingredientes</h3>
+      <div id="ingredientes-container">
+        <div class="ingrediente-item">
+          <input type="text" name="nome_ingrediente[]" placeholder="Ingrediente" required>
+          <input type="text" name="quantidade_ingrediente[]" placeholder="Quantidade" required>
+          <input type="text" name="unidade_medida[]" placeholder="Unidade (ex: g, ml, xícara)">
+          <button type="button" onclick="removerIngrediente(this)">❌</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn" onclick="adicionarIngrediente()">➕ Adicionar Ingrediente</button>
+
+      <br><br>
+      <button type="submit" class="btn">Salvar Receita</button>
+    </form>
+
+    <a href="{{ url_for('explorar') }}" class="btn voltar">⬅ Voltar</a>
+  </main>
+</body>
+</html>
