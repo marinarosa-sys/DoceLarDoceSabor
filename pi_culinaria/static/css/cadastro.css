@@ -93,7 +93,8 @@ label{
     font-family: "Indie Flower", cursive;
     color: #75C8C8;
     font-size: 35px;
-    margin: 0px;
+    margin-bottom: 10px;
+    margin-top: 0px;
 }
 
 .icone-login{

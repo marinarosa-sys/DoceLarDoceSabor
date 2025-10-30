@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
 <div class="container">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Voltar ao menu do usuário</a>
     <h1>Editar Conta</h1>
 
     {% if sucesso %}

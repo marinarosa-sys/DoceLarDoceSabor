@@ -44,6 +44,45 @@
             <li>{{ etapa.strip() }}.</li>
           {% endif %}
         {% endfor %}
+
+       <h3>Avaliações</h3>
+
+      {% if session.username %}
+          {% if receita.usuario.username == session.username %}
+              <p>Você não pode avaliar sua própria receita.</p>
+          {% else %}
+              <form action="{{ url_for('avaliar_receita', id=receita.id) }}" method="POST">
+                  <label for="nota">Sua nota:</label>
+                  <select name="nota" id="nota" required>
+                      <option value="1">⭐ 1</option>
+                      <option value="2">⭐⭐ 2</option>
+                      <option value="3">⭐⭐⭐ 3</option>
+                      <option value="4">⭐⭐⭐⭐ 4</option>
+                      <option value="5">⭐⭐⭐⭐⭐ 5</option>
+                  </select>
+
+                  <button type="submit">Enviar avaliação</button>
+              </form>
+          {% endif %}
+      {% else %}
+          <p><a href="{{ url_for('login') }}">Entre</a> para avaliar esta receita.</p>
+      {% endif %}
+
+    <hr>
+
+    {% for avaliacao in receita.avaliacoes %}
+        <div>
+            <strong>{{ avaliacao.usuario.username }}</strong>
+            <p>⭐ {{ avaliacao.nota }} / 5</p>
+            {% if avaliacao.comentario %}
+                <p>{{ avaliacao.comentario }}</p>
+            {% endif %}
+            <small>{{ avaliacao.data_avaliacao.strftime("%d/%m/%Y %H:%M") }}</small>
+        </div>
+        <hr>
+    {% else %}
+        <p>Nenhuma avaliação ainda. Seja o primeiro!</p>
+    {% endfor %}
       </ol>
     </section>
   </main>

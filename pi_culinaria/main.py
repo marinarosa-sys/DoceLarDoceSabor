@@ -3,7 +3,7 @@ from sqlalchemy import text
 from bk_usuario import db, Usuario  # Import do models
 import os
 from bk_usuario import db, Usuario  # Import do models
-from bk_receita import Receita
+from bk_receita import Receita, listar_receitas_usuario, Avaliacao
 from sqlalchemy import func
 from bk_receita import Ingrediente
 from bk_receita import IngredienteReceita
@@ -43,7 +43,7 @@ def home():
         return render_template("index.html")
 
 # Rota Login
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
         username = request.form['username']
@@ -65,30 +65,7 @@ def login():
 # 📝 Página de cadastro
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
-    if request.method == "POST":
-        nome_completo = request.form['nome_completo']
-        username = request.form['username']
-        email = request.form['email_usuario']
-        senha = request.form['senha']
-
-        user = Usuario.query.filter_by(email_usuario=email).first()
-
-        if user:
-            return render_template("cadastro.html", error="E-mail já cadastrado")
-        else:
-            novo_usuario = Usuario(
-                nome_completo=nome_completo,
-                username=username,
-                email_usuario=email
-            )
-            novo_usuario.set_password(senha)
-            db.session.add(novo_usuario)
-            db.session.commit()
-
-            session['username'] = username
-            return redirect(url_for('explorar'))
-
-    return render_template("cadastro.html")
+    return Usuario.cadastro_usuario()
 
 
 # 📊 Dashboard
@@ -104,6 +81,16 @@ def dashboard():
 def logout():
     session.pop('username', None)
     return redirect(url_for("home"))
+
+# ✏️ Editar conta# ✏️ Editar conta
+@app.route("/editar_conta", methods=["GET", "POST"])
+def editar_conta():
+    return Usuario.editar_conta_usuario()
+
+@app.route("/desativar_conta", methods=["POST"])
+def desativar_conta():
+    return Usuario.desativar_conta_usuario()
+
 
 # Rota Explorar
 @app.route("/explorar")
@@ -126,17 +113,39 @@ def explorar():
 
     return render_template("explorar.html", receitas=receitas)
 
+@app.route("/avaliar_receita/<int:id>", methods=["POST"])
+def avaliar_receita(id):
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user = Usuario.query.filter_by(username=session["username"]).first()
+    receita = Receita.query.get_or_404(id)
+
+    # 🔒 Bloqueia se o usuário for o autor
+    if receita.fk_usuario == user.id_usuario:
+        return redirect(url_for("detalhe_receita", id=id))
+
+    nota = int(request.form["nota"])
+    comentario = request.form.get("comentario", "")
+
+    Avaliacao.salvar_avaliacao(user.id_usuario, id, nota, comentario)
+    return redirect(url_for("detalhe_receita", id=id))
+
+
 
 @app.route("/nova_receita", methods=["GET", "POST"])
 def nova_receita():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         titulo = request.form["titulo"]
-        
+
         file = request.files.get("imagem")
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            imagem_path = f"imagens_receitas/{filename}"  # caminho relativo para usar no HTML
+            imagem_path = f"imagens_receitas/{filename}"
         else:
             imagem_path = None
 
@@ -144,13 +153,17 @@ def nova_receita():
         categoria = request.form["categoria"]
         utensilios = request.form["utensilios"]
 
-        # Cria a receita
+        # 🔍 Pega o usuário logado
+        user = Usuario.query.filter_by(username=session["username"]).first()
+
+        # Cria a receita vinculada ao usuário
         nova = Receita(
             titulo=titulo,
             imagem=imagem_path,
             instrucoes=instrucoes,
             categoria=categoria,
-            utensilios=utensilios
+            utensilios=utensilios,
+            fk_usuario=user.id_usuario  # 👈 salva o ID do usuário
         )
         db.session.add(nova)
         db.session.commit()
@@ -161,8 +174,7 @@ def nova_receita():
         unidades = request.form.getlist("unidade_medida[]")
 
         for nome, qtd, unidade in zip(nomes_ingredientes, quantidades, unidades):
-            if nome.strip():  # só adiciona se o campo não estiver vazio
-                # Verifica se o ingrediente já existe
+            if nome.strip():
                 ingrediente_existente = Ingrediente.query.filter_by(nome_ingrediente=nome).first()
 
                 if not ingrediente_existente:
@@ -172,7 +184,6 @@ def nova_receita():
                 else:
                     ingrediente = ingrediente_existente
 
-                # Relaciona com a receita
                 relacao = IngredienteReceita(
                     fk_receita=nova.id,
                     fk_ingrediente=ingrediente.id_ingrediente,
@@ -187,13 +198,23 @@ def nova_receita():
 
 
 
+
+@app.route("/minhas_receitas")
+def minhas_receitas():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user = Usuario.query.filter_by(username=session["username"]).first()
+    receitas = listar_receitas_usuario(user.id_usuario)
+
+    return render_template("minhas_receitas.html", receitas=receitas)
+
+
 # Rota Detalhes
 @app.route("/receita/<int:id>")
 def detalhe_receita(id):
     receita = Receita.query.get_or_404(id)
     return render_template("receita.html", receita=receita)
-
-
 
 
 # Inicialização do servidor
@@ -204,9 +225,6 @@ if __name__ == "__main__":
             db.session.execute(text("SELECT 1"))
             print("✅ Conectado ao MySQL e tabelas criadas/verificadas com sucesso!")
 
-            # ✅ Popula o banco apenas se estiver vazio
-            if Receita.query.count() == 0:
-                popular_receitas()
 
         except Exception as e:
             print("❌ Erro ao conectar ou criar tabelas:", e)
