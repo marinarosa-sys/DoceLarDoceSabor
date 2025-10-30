@@ -7,6 +7,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
+  <aside class="sidebar">
+    <ul>
+      <li><a href="{{ url_for('favoritos') }}">❤️ Favoritos</a></li>
+      <a href="{{ url_for('preferencias') }}" class="btn">⚙️ Preferências</a>
+    </ul>
+  </aside>
+
   <main class="container">
     <h1>🍽️ Explorar Receitas</h1>
     <div class="acoes">
@@ -34,13 +42,24 @@
           {% if receita.ingredientes_receita %}
           <p><strong>Ingredientes:</strong></p>
           <ul>
-            {% for ir in receita.ingredientes_receita %}
-              <li>{{ ir.quantidade_ingrediente_receita }} {{ ir.ingrediente.nome_ingrediente }}</li>
+            {% for item in receita.ingredientes_receita %}
+              <li>
+                {{ item.quantidade_ingrediente_receita }}
+                {% if item.ingrediente.unidade_medida %}
+                  {{ item.ingrediente.unidade_medida }}
+                {% endif %}
+                de {{ item.ingrediente.nome_ingrediente }}
+              </li>
             {% endfor %}
           </ul>
           {% endif %}
 
           <a class="btn" href="{{ url_for('detalhe_receita', id=receita.id) }}">Ver Detalhes</a>
+
+          <form action="{{ url_for('favoritar', receita_id=receita.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn-favorito" title="Adicionar aos favoritos">❤️</button>
+          </form>
+
         </div>
       </article>
       {% endfor %}

@@ -27,7 +27,13 @@
       <h2>🧂 Ingredientes</h2>
       <ul>
         {% for ir in receita.ingredientes_receita %}
-          <li>{{ ir.quantidade_ingrediente_receita }} {{ ir.ingrediente.nome_ingrediente }}</li>
+          <li>
+            {{ ir.quantidade_ingrediente_receita }}
+            {% if ir.ingrediente.unidade_medida %}
+              {{ ir.ingrediente.unidade_medida }}
+            {% endif %}
+            de {{ ir.ingrediente.nome_ingrediente }}
+          </li>
         {% else %}
           <p>Nenhum ingrediente informado.</p>
         {% endfor %}
