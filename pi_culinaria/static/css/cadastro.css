@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Miriam+Libre:wght@400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Indie+Flower&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
+
+body.cadastro-page{
+    background-color: #C87B75;
+    background-image: url(assets/Group\ 61.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 90vh;
+}
+
+.container_cadastro{
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    height: 88%;
+    justify-content: center;
+    align-self: center;
+    justify-self: center;
+    align-content: center;
+    text-align: center;
+    background-color: #FFF7EF;
+    border-radius: 20px;
+    padding: 38px;
+    box-shadow: 0 4px 12px rgba(215, 159, 142, 0.76);
+    margin-top: 40px;
+}
+
+#form-cadastro{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    text-align: left;
+    font-family: "Montserrat", sans-serif;
+    color: #75C8C8;
+    font-weight: 600;
+    margin-top: -10px;
+}
+
+.container_cadastro p{
+    margin-top: 0px;
+    font-family: "Montserrat", sans-serif;
+    color: #75C8C8;
+    font-size: 12px;
+}
+
+label{
+    margin-bottom: 5px;
+}
+
+.container_cadastro .input-field{
+    margin-bottom: 10px;
+    background-color: #E7E8E9;
+    border: none;
+    height: 30px;
+    border-radius: 5px;
+}
+
+.input-field::placeholder{
+    font-family: "Montserrat", sans-serif;
+    color: #b6b5b5;
+}
+
+.btn-cadastro{
+    width: 70%;
+    align-self: center;
+    border: none;
+    border-radius: 5px;
+    background-color: #75C8C8;
+    height: 40px;
+    font-family: "Montserrat", sans-serif;
+    color: #FFF7EF;
+    font-weight: 600;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+
+.container_cadastro span{
+    font-weight: 700;
+
+}
+
+.container_cadastro a{
+    text-decoration:underline ;
+    color: #75C8C8;
+    font-weight: 800;
+}
+
+.container_cadastro h1{
+    font-family: "Indie Flower", cursive;
+    color: #75C8C8;
+    font-size: 35px;
+    margin: 0px;
+}
+
+.icone-login{
+    width: 45%;
+    align-self: center;
+    margin-top: -50px;
+}
