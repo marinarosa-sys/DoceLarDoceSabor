@@ -18,3 +18,17 @@ class Usuario(db.Model):
     def check_password(self, senha):
         from werkzeug.security import check_password_hash
         return check_password_hash(self.senha, senha)
+    
+class Favorito(db.Model):
+    __tablename__ = "tb_favoritos"
+
+    id_favorito = db.Column(db.Integer, primary_key=True)
+    fk_usuario = db.Column(db.Integer, db.ForeignKey("tb_usuarios.id_usuario"), nullable=False)
+    fk_receita = db.Column(db.Integer, db.ForeignKey("tb_receitas.id"), nullable=False)
+
+class Intolerancia(db.Model):
+    __tablename__ = "tb_intolerancias"
+
+    id_intolerancia = db.Column(db.Integer, primary_key=True)
+    fk_usuario = db.Column(db.Integer, db.ForeignKey("tb_usuarios.id_usuario"), nullable=False)
+    fk_ingrediente = db.Column(db.Integer, db.ForeignKey("tb_ingredientes.id_ingrediente"), nullable=False)
