@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preferências Alimentares</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <h1>Preferências Alimentares</h1>
+        <p>Selecione os ingredientes que você tem intolerância:</p>
+
+        <form action="{{ url_for('preferencias') }}" method="POST">
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                {% for ingrediente in ingredientes_comuns %}
+                    <label style="flex: 1 1 200px;">
+                        <input type="checkbox" name="intolerancias" value="{{ ingrediente }}"
+                            {% if ingrediente.lower() in intolerancias_usuario %}checked{% endif %}>
+                        {{ ingrediente }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <button type="submit" style="margin-top: 20px;">Salvar Preferências</button>
+        </form>
+
+        <a href="{{ url_for('explorar') }}" style="display: inline-block; margin-top: 20px;">⬅ Voltar</a>
+    </main>
+</body>
+</html>

@@ -7,6 +7,7 @@ from bk_receita import Receita, listar_receitas_usuario, Avaliacao
 from sqlalchemy import func
 from bk_receita import Ingrediente
 from bk_receita import IngredienteReceita
+from bk_usuario import Favorito, Intolerancia
 
 from werkzeug.utils import secure_filename
 
@@ -17,6 +18,8 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
 
 # Configuração do SQLAlchemy
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@127.0.0.1:3306/db_culinaria"
@@ -37,38 +40,22 @@ db.init_app(app)
 # 🏠 Rota inicial
 @app.route("/")
 def home():
-    if "username" in session:
-        return redirect(url_for("explorar"))
-    else:
-        return render_template("index.html")
+    session.pop('username', None)  # limpa login anterior
+    return render_template("index.html")
 
 # Rota Login
-@app.route("/login", methods=["POST", "GET"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form['username']
-        senha = request.form['senha']
-
-        user = Usuario.query.filter_by(username=username).first()
-
-        if user and user.check_password(senha):
-            if user.status != 'ativo':
-                return render_template("login.html", error="Esta conta foi deletada.")
-            session['username'] = user.username
-            return redirect(url_for('explorar'))
-        else:
-            return render_template("login.html", error="Usuário ou senha inválidos")
-
-    return render_template("login.html")
+    return Usuario.login_usuario()
 
 
-# 📝 Página de cadastro
+# Página de cadastro
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     return Usuario.cadastro_usuario()
 
 
-# 📊 Dashboard
+# Dashboard
 @app.route("/dashboard")
 def dashboard():
     if "username" in session:
@@ -76,7 +63,7 @@ def dashboard():
     return redirect(url_for('login'))
 
 
-# 🚪 Logout
+# Logout
 @app.route("/logout")
 def logout():
     session.pop('username', None)
@@ -99,19 +86,39 @@ def explorar():
     if "username" not in session:
         return redirect(url_for("home"))
 
-    termo = request.args.get("q", "").strip()
-    print(f"🔍 Termo de busca recebido: '{termo}'")
+    usuario = Usuario.query.filter_by(username=session["username"]).first()
 
+    termo = request.args.get("q", "").strip().lower()
+
+    # 🔹 1. Busca intolerâncias do usuário
+    intolerancias = (
+        db.session.query(Ingrediente.id_ingrediente)
+        .join(Intolerancia, Ingrediente.id_ingrediente == Intolerancia.fk_ingrediente)
+        .filter(Intolerancia.fk_usuario == usuario.id_usuario)
+        .all()
+    )
+    intolerancia_ids = [i[0] for i in intolerancias]
+
+    # 🔹 2. Base da query de receitas
+    query = Receita.query
+
+    # 🔹 3. Filtro por nome de receita (busca)
     if termo:
-        receitas = (
-            Receita.query
-            .filter(func.lower(Receita.titulo).like(f"%{termo.lower()}%"))
-            .all()
+        query = query.filter(func.lower(Receita.titulo).like(f"%{termo}%"))
+
+    # 🔹 4. Se houver intolerâncias, exclui receitas que as contenham
+    if intolerancia_ids:
+        query = query.filter(
+            ~Receita.id.in_(
+                db.session.query(IngredienteReceita.fk_receita)
+                .filter(IngredienteReceita.fk_ingrediente.in_(intolerancia_ids))
+            )
         )
-    else:
-        receitas = Receita.query.all()
+
+    receitas = query.all()
 
     return render_template("explorar.html", receitas=receitas)
+
 
 @app.route("/avaliar_receita/<int:id>", methods=["POST"])
 def avaliar_receita(id):
@@ -217,6 +224,108 @@ def detalhe_receita(id):
     return render_template("receita.html", receita=receita)
 
 
+@app.route("/favoritar/<int:receita_id>", methods=["POST"])
+def favoritar(receita_id):
+    if "username" not in session:
+        return redirect(url_for("home"))
+
+    usuario = Usuario.query.filter_by(username=session["username"]).first()
+    favorito_existente = Favorito.query.filter_by(fk_usuario=usuario.id_usuario, fk_receita=receita_id).first()
+
+    if favorito_existente:
+        # Se já estiver favoritado, remove (desfavorita)
+        db.session.delete(favorito_existente)
+        db.session.commit()
+    else:
+        # Caso contrário, adiciona
+        novo_favorito = Favorito(fk_usuario=usuario.id_usuario, fk_receita=receita_id)
+        db.session.add(novo_favorito)
+        db.session.commit()
+
+    return redirect(url_for("explorar"))
+
+
+@app.route("/favoritos")
+def favoritos():
+    if "username" not in session:
+        return redirect(url_for("home"))
+
+    usuario = Usuario.query.filter_by(username=session["username"]).first()
+
+    # 🔍 Recebe o termo de busca da barra de pesquisa
+    termo = request.args.get("q", "").strip().lower()
+
+    # Base da query
+    query = (
+        db.session.query(Receita)
+        .join(Favorito, Receita.id == Favorito.fk_receita)
+        .filter(Favorito.fk_usuario == usuario.id_usuario)
+    )
+
+    # Se tiver texto na busca, filtra
+    if termo:
+        query = query.filter(func.lower(Receita.titulo).like(f"%{termo}%"))
+
+    receitas = query.all()
+
+    return render_template("favoritos.html", receitas=receitas, termo=termo)
+
+
+@app.route("/preferencias", methods=["GET", "POST"])
+def preferencias():
+    if "username" not in session:
+        return redirect(url_for("home"))
+
+    usuario = Usuario.query.filter_by(username=session["username"]).first()
+
+    # Ingredientes comuns fixos
+    ingredientes_comuns = [
+        "Trigo", "Aveia", "Cevada", "Centeio",
+        "Leite", "Ovo", "Bacalhau", "Marisco", "Arenque",
+        "Camarão", "Carne bovina", "Tomate", "Espinafre",
+        "Banana", "Nozes", "Couve", "Morango",
+        "Chocolate", "Refrigerante à base de cola",
+        "Amendoim", "Castanha"
+    ]
+
+    if request.method == "POST":
+        selecionados = request.form.getlist("intolerancias")
+
+        # Limpa preferências antigas
+        Intolerancia.query.filter_by(fk_usuario=usuario.id_usuario).delete()
+
+        # Verifica se ingrediente existe no banco antes de relacionar
+        for nome in selecionados:
+            ingrediente = Ingrediente.query.filter(func.lower(Ingrediente.nome_ingrediente) == nome.lower()).first()
+            if ingrediente:
+                nova_intolerancia = Intolerancia(
+                    fk_usuario=usuario.id_usuario,
+                    fk_ingrediente=ingrediente.id_ingrediente
+                )
+                db.session.add(nova_intolerancia)
+
+        db.session.commit()
+        return redirect(url_for("preferencias"))
+
+    # 🔍 Buscar intolerâncias já salvas do usuário
+    intolerancias_usuario = (
+        db.session.query(Ingrediente.nome_ingrediente)
+        .join(Intolerancia, Ingrediente.id_ingrediente == Intolerancia.fk_ingrediente)
+        .filter(Intolerancia.fk_usuario == usuario.id_usuario)
+        .all()
+    )
+
+    # Converte para uma lista de nomes (ex: ["Leite", "Amendoim"])
+    intolerancias_usuario = [i[0].lower() for i in intolerancias_usuario]
+
+    return render_template(
+        "preferencias.html",
+        ingredientes_comuns=ingredientes_comuns,
+        intolerancias_usuario=intolerancias_usuario
+    )
+
+
+
 # Inicialização do servidor
 if __name__ == "__main__":
     with app.app_context():
@@ -224,7 +333,6 @@ if __name__ == "__main__":
             db.create_all()
             db.session.execute(text("SELECT 1"))
             print("✅ Conectado ao MySQL e tabelas criadas/verificadas com sucesso!")
-
 
         except Exception as e:
             print("❌ Erro ao conectar ou criar tabelas:", e)

@@ -18,6 +18,7 @@ class Usuario(db.Model):
         self.senha = generate_password_hash(senha)
     
     def check_password(self, senha):
+        from werkzeug.security import check_password_hash
         return check_password_hash(self.senha, senha)
 
     def login_usuario():
@@ -113,5 +114,20 @@ class Usuario(db.Model):
         user.status = "inativo"
         db.session.commit()
         session.pop("username", None)
-        return render_template("index.html", sucesso="Sua conta foi desativada.")
-        
+        return render_template("index.html", sucesso="Sua conta foi desativada.")   
+class Favorito(db.Model):
+    __tablename__ = "tb_favoritos"
+
+    id_favorito = db.Column(db.Integer, primary_key=True)
+    fk_usuario = db.Column(db.Integer, db.ForeignKey("tb_usuarios.id_usuario"), nullable=False)
+    fk_receita = db.Column(db.Integer, db.ForeignKey("tb_receitas.id"), nullable=False)
+
+class Intolerancia(db.Model):
+    __tablename__ = "tb_intolerancias"
+
+    id_intolerancia = db.Column(db.Integer, primary_key=True)
+    fk_usuario = db.Column(db.Integer, db.ForeignKey("tb_usuarios.id_usuario"), nullable=False)
+    fk_ingrediente = db.Column(db.Integer, db.ForeignKey("tb_ingredientes.id_ingrediente"), nullable=False)
+
+    
+    
