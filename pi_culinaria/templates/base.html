@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../static/css/login.css">
+    <link rel="stylesheet" href="../static/css/cadastro.css">
     <title>Doce Lar Doce Sabor</title>
 </head>
-<body>
-    <header>Projeto integrador (Header)</header>
-    {% block body %}
-    {% endblock %}
+<body class="{{ body_class or '' }}">
+    {% block body %}{% endblock %}
 </body>
 </html>

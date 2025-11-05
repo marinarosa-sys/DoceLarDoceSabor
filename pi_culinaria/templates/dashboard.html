@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block body %}
 <div class="container">
+    <a href="{{ url_for('explorar') }}" class="btn btn-secondary">Explorar</a>
     <h1>Bem-vindo, {{ username }}!</h1>
 
+    <a href="{{ url_for('favoritos') }}">❤️ Favoritos</a></li>
+    <a href="{{ url_for('preferencias') }}" class="btn">⚙️ Preferências</a>
     <a href="{{ url_for('editar_conta') }}" class="btn btn-primary">Editar conta</a>
+    <a href="{{ url_for('minhas_receitas') }}" class="btn btn-secondary">Minhas receitas</a>
     <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sair</a>
 </div>
 {% endblock %}

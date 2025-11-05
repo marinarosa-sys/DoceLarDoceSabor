@@ -1,18 +1,25 @@
 {% extends "base.html" %}
+{% set body_class = "cadastro-page" %}
+
 {% block body %}
-<div class="container">
-    <h1>Cadastro</h1>
+<div class="container_cadastro">
+    <img class="icone-login"  src="../static/css/assets/icone-azul.png" alt="">
+    <h1>Bem vindo!</h1>
 
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
 
-    <form action="{{ url_for('cadastro') }}" method="post">
+    <form  id="form-cadastro"  action="{{ url_for('cadastro') }}" method="post">
+        <label for="nome_completo">Nome completo</label>
         <input type="text" name="nome_completo" placeholder="Nome completo" required class="input-field" />
+        <label for="username">Nome de usuário</label>
         <input type="text" name="username" placeholder="Nome de usuário" required class="input-field" />
+        <label for="email_usuario">Email</label>
         <input type="email" name="email_usuario" placeholder="E-mail" required class="input-field" />
+        <label for="senha">Senha</label>
         <input type="password" name="senha" placeholder="Senha" required class="input-field" />
-        <input type="submit" value="Cadastrar" class="btn btn-login" />
+        <input type="submit" value="Cadastrar" class="btn btn-cadastro" />
     </form>
 
     <p>Já tem conta? <a href="{{ url_for('login') }}">Faça login</a></p>
