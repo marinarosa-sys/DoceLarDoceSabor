@@ -12,11 +12,11 @@
 
     <section class="receita-info">
       <h1>{{ receita.titulo }}</h1>
-      <img src="{{ url_for('static', filename=receita.imagem) }}" 
+      <img src="{{ url_for('static', filename=receita.imagem or 'imagens_receitas/padrao.png') }}"
            alt="{{ receita.titulo }}"
            width="400" height="300">
 
-      <p><strong>Categoria:</strong> {{ receita.categoria or 'Não informada' }}</p>
+      <p><strong>Categoria:</strong> {{ (receita.categoria or 'Não informada')|replace('_', ' ')|title }}</p>
 
       {% if receita.utensilios %}
       <p><strong>Utensílios:</strong> {{ receita.utensilios }}</p>

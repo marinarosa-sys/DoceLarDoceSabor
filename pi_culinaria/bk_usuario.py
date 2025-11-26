@@ -1,3 +1,4 @@
+#bk_usuario.py
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, session, url_for
@@ -31,7 +32,9 @@ class Usuario(db.Model):
             if user and user.check_password(senha):
                 if user.status != 'ativo':
                     return render_template("login.html", error="Esta conta está desativada.")
+                # 🔥 SALVA TUDO QUE PRECISA NA SESSÃO
                 session['username'] = user.username
+                session['id_usuario'] = user.id_usuario
                 return redirect(url_for('dashboard'))
             else:
                 return render_template("login.html", error="Usuário ou senha inválidos")
@@ -59,7 +62,8 @@ class Usuario(db.Model):
                 db.session.add(novo_usuario)
                 db.session.commit()
 
-                session['username'] = username
+                session['username'] = novo_usuario.username
+                session['id_usuario'] = novo_usuario.id_usuario
                 return redirect(url_for('dashboard'))
 
         return render_template("cadastro.html")

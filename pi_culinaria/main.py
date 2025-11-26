@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from sqlalchemy import text
 from bk_usuario import db, Usuario  # Import do models
 import os
@@ -8,8 +8,13 @@ from sqlalchemy import func
 from bk_receita import Ingrediente
 from bk_receita import IngredienteReceita
 from bk_usuario import Favorito, Intolerancia
+import pickle
+from treinar_modelo import treinar_modelo
 
 from werkzeug.utils import secure_filename
+
+import pickle
+import random
 
 UPLOAD_FOLDER = os.path.join("static", "imagens_receitas")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
@@ -128,7 +133,7 @@ def avaliar_receita(id):
     user = Usuario.query.filter_by(username=session["username"]).first()
     receita = Receita.query.get_or_404(id)
 
-    # 🔒 Bloqueia se o usuário for o autor
+    # ❌ Bloqueia se o usuário for o autor
     if receita.fk_usuario == user.id_usuario:
         return redirect(url_for("detalhe_receita", id=id))
 
@@ -136,7 +141,14 @@ def avaliar_receita(id):
     comentario = request.form.get("comentario", "")
 
     Avaliacao.salvar_avaliacao(user.id_usuario, id, nota, comentario)
+
+    # 🔥 Verifica se precisa re-treinar
+    from treinar_modelo import treinar_modelo
+    treinar_modelo()
+
+
     return redirect(url_for("detalhe_receita", id=id))
+
 
 
 
@@ -145,63 +157,89 @@ def nova_receita():
     if "username" not in session:
         return redirect(url_for("login"))
 
-    if request.method == "POST":
-        titulo = request.form["titulo"]
+    # GET normal → abre página vazia
+    if request.method == "GET":
+        return render_template("nova_receita.html")
 
-        file = request.files.get("imagem")
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            imagem_path = f"imagens_receitas/{filename}"
-        else:
-            imagem_path = None
+    # POST → CRIAR ou EDITAR
+    id_receita = request.form.get("id_receita")
+    titulo = request.form["titulo"]
 
-        instrucoes = request.form["instrucoes"]
-        categoria = request.form["categoria"]
-        utensilios = request.form["utensilios"]
+    # IMAGEM
+    file = request.files.get("imagem")
+    imagem_path = None
 
-        # 🔍 Pega o usuário logado
-        user = Usuario.query.filter_by(username=session["username"]).first()
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        imagem_path = f"imagens_receitas/{filename}"
 
-        # Cria a receita vinculada ao usuário
-        nova = Receita(
+    instrucoes = request.form["instrucoes"]
+    categoria = request.form["categoria"]
+    utensilios = request.form["utensilios"]
+
+    user = Usuario.query.filter_by(username=session["username"]).first()
+
+    # --------------------------
+    #  SE TEM ID → EDITAR
+    # --------------------------
+    if id_receita:
+        receita = Receita.query.get(id_receita)
+
+        receita.titulo = titulo
+        receita.instrucoes = instrucoes
+        receita.categoria = categoria
+        receita.utensilios = utensilios
+
+        if imagem_path:
+            receita.imagem = imagem_path
+
+        # apaga ingredientes antigos
+        IngredienteReceita.query.filter_by(fk_receita=id_receita).delete()
+        db.session.commit()
+
+    else:
+        # --------------------------
+        #  SENÃO → CRIAR NOVA
+        # --------------------------
+        receita = Receita(
             titulo=titulo,
             imagem=imagem_path,
             instrucoes=instrucoes,
             categoria=categoria,
             utensilios=utensilios,
-            fk_usuario=user.id_usuario  # 👈 salva o ID do usuário
+            fk_usuario=user.id_usuario
         )
-        db.session.add(nova)
+        db.session.add(receita)
         db.session.commit()
 
-        # Pega os ingredientes enviados pelo formulário
-        nomes_ingredientes = request.form.getlist("nome_ingrediente[]")
-        quantidades = request.form.getlist("quantidade_ingrediente[]")
-        unidades = request.form.getlist("unidade_medida[]")
+    # INGREDIENTES
+    nomes_ingredientes = request.form.getlist("nome_ingrediente[]")
+    quantidades = request.form.getlist("quantidade_ingrediente[]")
+    unidades = request.form.getlist("unidade_medida[]")
 
-        for nome, qtd, unidade in zip(nomes_ingredientes, quantidades, unidades):
-            if nome.strip():
-                ingrediente_existente = Ingrediente.query.filter_by(nome_ingrediente=nome).first()
+    for nome, qtd, unidade in zip(nomes_ingredientes, quantidades, unidades):
+        if nome.strip():
+            ingrediente_existente = Ingrediente.query.filter_by(nome_ingrediente=nome).first()
 
-                if not ingrediente_existente:
-                    ingrediente = Ingrediente(nome_ingrediente=nome, unidade_medida=unidade)
-                    db.session.add(ingrediente)
-                    db.session.commit()
-                else:
-                    ingrediente = ingrediente_existente
+            if not ingrediente_existente:
+                ingrediente = Ingrediente(nome_ingrediente=nome, unidade_medida=unidade)
+                db.session.add(ingrediente)
+                db.session.commit()
+            else:
+                ingrediente = ingrediente_existente
 
-                relacao = IngredienteReceita(
-                    fk_receita=nova.id,
-                    fk_ingrediente=ingrediente.id_ingrediente,
-                    quantidade_ingrediente_receita=qtd
-                )
-                db.session.add(relacao)
+            relacao = IngredienteReceita(
+                fk_receita=receita.id,
+                fk_ingrediente=ingrediente.id_ingrediente,
+                quantidade_ingrediente_receita=qtd
+            )
+            db.session.add(relacao)
 
-        db.session.commit()
-        return redirect(url_for("explorar"))
+    db.session.commit()
 
-    return render_template("nova_receita.html")
+    return redirect(url_for("explorar"))
+
 
 
 
@@ -212,9 +250,61 @@ def minhas_receitas():
         return redirect(url_for("login"))
 
     user = Usuario.query.filter_by(username=session["username"]).first()
+    q = request.args.get("q", "").strip()  # termo de busca
+
     receitas = listar_receitas_usuario(user.id_usuario)
 
+    # 🔍 Filtra receitas se houver termo de busca
+    if q:
+        receitas = [r for r in receitas if q.lower() in r.titulo.lower()]
+
     return render_template("minhas_receitas.html", receitas=receitas)
+
+@app.route("/remover_receita/<int:id>")
+def remover_receita(id):
+    print("SESSION:", session)
+
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    receita = Receita.query.get(id)
+
+    if not receita:
+        return "Receita não encontrada"
+
+    print("Receita fk_usuario:", receita.fk_usuario)
+    print("Session id_usuario:", session.get("id_usuario"))
+
+    # Verifica se a receita pertence ao usuário logado
+    if receita.fk_usuario != session.get("id_usuario"):
+        return "Acesso negado"
+
+    # 🔥 1. Remove favoritos relacionados a esta receita
+    Favorito.query.filter_by(fk_receita=id).delete()
+
+    # 🔥 2. Remove ingredientes da receita
+    for ing in receita.ingredientes_receita:
+        db.session.delete(ing)
+
+    # 🔥 3. Remove também avaliações relacionadas
+    Avaliacao.query.filter_by(fk_receita=id).delete()
+
+    # 🔥 4. Agora sim, remove a receita
+    db.session.delete(receita)
+
+    db.session.commit()
+
+    return redirect(url_for("minhas_receitas"))
+
+
+
+
+@app.route("/editar_receita/<int:id>", methods=["GET"])
+def editar_receita(id):
+    receita = Receita.query.get(id)
+    return render_template("nova_receita.html", receita=receita)
+
+
 
 
 # Rota Detalhes
@@ -241,8 +331,30 @@ def favoritar(receita_id):
         novo_favorito = Favorito(fk_usuario=usuario.id_usuario, fk_receita=receita_id)
         db.session.add(novo_favorito)
         db.session.commit()
+        
+    # 🔄 Atualiza o modelo após cada mudança nos favoritos
+    os.system("python treinar_modelo.py")
 
     return redirect(url_for("explorar"))
+
+@app.route("/remover_favorito/<int:receita_id>", methods=["POST"])
+def remover_favorito(receita_id):
+    if "username" not in session:
+        return jsonify({"erro": "Usuário não autenticado"}), 403
+
+    usuario = Usuario.query.filter_by(username=session["username"]).first()
+
+    favorito = Favorito.query.filter_by(
+        fk_usuario=usuario.id_usuario,
+        fk_receita=receita_id
+    ).first()
+
+    if favorito:
+        db.session.delete(favorito)
+        db.session.commit()
+        return jsonify({"sucesso": True}), 200
+
+    return jsonify({"erro": "Favorito não encontrado"}), 404
 
 
 @app.route("/favoritos")
@@ -323,6 +435,191 @@ def preferencias():
         ingredientes_comuns=ingredientes_comuns,
         intolerancias_usuario=intolerancias_usuario
     )
+
+# 🔹 Carrega preferências salvas
+preferencias = None
+if os.path.exists("preferencias_usuarios.pkl"):
+    with open("preferencias_usuarios.pkl", "rb") as f:
+        preferencias = pickle.load(f)
+    print("✅ Preferências carregadas com sucesso!")
+else:
+    print("⚠️ Nenhuma preferência encontrada. Execute treinar_modelo.py primeiro.")
+
+
+@app.route("/recomendacoes")
+def recomendacoes():
+    # =====================
+    # 1) Verificar Login
+    # =====================
+    if "username" not in session:
+        return redirect(url_for("home"))
+
+    usuario = Usuario.query.filter_by(username=session["username"]).first()
+
+    # =====================
+    # 2) Tentar carregar modelos
+    # =====================
+    try:
+        with open("modelo_recomendacao.pkl", "rb") as f:
+            similaridade = pickle.load(f)
+
+        with open("preferencias_categorias.pkl", "rb") as f:
+            preferencias_categoria = pickle.load(f)
+            
+        with open("media_receitas.pkl", "rb") as f:
+            medias = pickle.load(f)
+            
+    except:
+        similaridade = None
+        preferencias_categoria = {}
+        medias = {}
+
+    # =====================
+    # 3) Se o usuário não tem modelo → usar favoritos antigos
+    # =====================
+    categoria_prevista = preferencias_categoria.get(usuario.id_usuario, None)
+
+    if similaridade is None or similaridade.empty:
+        print("⚠️ Usuário sem histórico avaliativo → usando favoritos/aleatório.")
+
+        receitas_recomendadas = (
+            db.session.query(Receita)
+            .order_by(func.rand())
+            .limit(6)
+            .all()
+        )
+    else:
+        # =====================
+        # 4) Filtragem colaborativa (modelo de notas)
+        # =====================
+        # Receitas já avaliadas pelo usuário (não repetir)
+        # Receitas mal avaliadas pelo usuário devem ser removidas do ranking
+        mal_avaliadas = (
+            db.session.query(Avaliacao.fk_receita)
+            .filter(Avaliacao.fk_usuario == usuario.id_usuario, Avaliacao.nota <= 2)
+            .all()
+        )
+        mal_avaliadas = [m[0] for m in mal_avaliadas]
+
+        # Receitas já avaliadas (qualquer nota) também não serão sugeridas
+        # Receitas já avaliadas (qualquer nota) também não serão sugeridas
+        avaliadas = (
+            db.session.query(Avaliacao.fk_receita)
+            .filter_by(fk_usuario=usuario.id_usuario)
+            .all()
+        )
+        avaliadas = [a[0] for a in avaliadas]
+
+        # Receitas favoritedas
+        favoritadas = (
+            db.session.query(Favorito.fk_receita)
+            .filter_by(fk_usuario=usuario.id_usuario)
+            .all()
+        )
+        favoritadas = [f[0] for f in favoritadas]
+
+        # Receitas criadas pelo próprio usuário (NÃO recomendar)
+        criadas_por_usuario = (
+            db.session.query(Receita.id)
+            .filter(Receita.fk_usuario == usuario.id_usuario)
+            .all()
+        )
+        criadas_por_usuario = [c[0] for c in criadas_por_usuario]
+
+        # Remove todas: avaliadas, mal avaliadas e criadas pelo próprio usuário
+        # Remover receitas avaliadas (qualquer nota), mal avaliadas e criadas pelo usuário
+        remover = set(avaliadas + mal_avaliadas + favoritadas + criadas_por_usuario)
+        similaridade_filtrada = similaridade.drop(
+            index=list(remover), 
+            columns=list(remover), 
+            errors="ignore"
+        )
+
+
+        # ---- CÁLCULO DO SCORE FINAL ----
+        # média de similaridade de cada receita com as demais, após filtro
+        sim = similaridade_filtrada.mean(axis=1)
+        
+        # Dar bônus para receitas da categoria favorita
+        if categoria_prevista:
+            categorias = {r.id: r.categoria for r in Receita.query.filter(Receita.id.in_(sim.index)).all()}
+            for r in sim.index:
+                if categorias[r] == categoria_prevista:
+                    sim[r] *= 1.25  # +25% de peso
+
+
+
+        for r in sim.index:
+            if r in medias:
+                sim[r] *= (medias[r] / max(medias.values()))
+
+        recomendadas_ids = sim.sort_values(ascending=False).head(10).index.tolist()
+
+        
+        # =====================
+        # 5) Filtro pela categoria favorita (se possível)
+        # =====================
+        receitas_recomendadas = (
+            db.session.query(Receita)
+            .filter(Receita.id.in_(recomendadas_ids))
+            .filter(~Receita.id.in_(mal_avaliadas))
+            .filter(~Receita.id.in_(avaliadas))
+            .filter(Receita.fk_usuario != usuario.id_usuario)
+            .limit(6)
+            .all()
+        )
+
+        # Caso não tenha sugestões nessa categoria → ainda recomendar outras
+        if not receitas_recomendadas:
+            receitas_recomendadas = (
+                db.session.query(Receita)
+                .filter(Receita.id.in_(recomendadas_ids))
+                .filter(~Receita.id.in_(mal_avaliadas))
+                .filter(~Receita.id.in_(avaliadas))
+                .filter(Receita.fk_usuario != usuario.id_usuario)
+                .limit(6)
+                .all()
+            )
+
+        # Como fallback final → aleatórias
+        if not receitas_recomendadas:
+            receitas_recomendadas = (
+                db.session.query(Receita)
+                .order_by(func.rand())
+                .limit(6)
+                .all()
+            )
+
+    # =====================
+    # 6) Retornar JSON para o frontend
+    # =====================
+    dados = [
+        {
+            "id": r.id,
+            "titulo": r.titulo,
+            "imagem": r.imagem,
+            "categoria": r.categoria
+        }
+        for r in receitas_recomendadas
+    ]
+
+    return jsonify(dados)
+
+def verificar_treinamento():
+    # Conta avaliações que ainda não foram treinadas
+    novas = Avaliacao.query.filter_by(treinado=False).count()
+    
+    # Treina se tiver >= 10
+    if novas >= 10:
+        treinar_modelo()
+        print(f"🤖 Modelo re-treinado automaticamente com {novas} novas avaliações!")
+
+
+    
+@app.route("/retrain_model")
+def retrain_model():
+    os.system("python treinar_modelo.py")
+    return "Modelo re-treinado com sucesso!"
 
 
 

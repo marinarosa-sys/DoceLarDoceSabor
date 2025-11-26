@@ -4,71 +4,209 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova Receita</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <!-- MESMOS CSS DO SITE -->
+  <link rel="stylesheet" href="../static/css/menu.css">
+  <link rel="stylesheet" href="../static/css/nova_receita.css">
+
   <script>
     function adicionarIngrediente() {
       const container = document.getElementById('ingredientes-container');
-      const novoIngrediente = document.createElement('div');
-      novoIngrediente.classList.add('ingrediente-item');
-      novoIngrediente.innerHTML = `
+      const novo = document.createElement('div');
+      novo.classList.add('ingrediente-item');
+      novo.innerHTML = `
         <input type="text" name="nome_ingrediente[]" placeholder="Ingrediente" required>
         <input type="text" name="quantidade_ingrediente[]" placeholder="Quantidade" required>
         <input type="text" name="unidade_medida[]" placeholder="Unidade (ex: g, ml, xícara)">
-        <button type="button" onclick="removerIngrediente(this)">❌</button>
+        <button type="button" class="btn-remover" onclick="removerIngrediente(this)">✖</button>
       `;
-      container.appendChild(novoIngrediente);
+      container.appendChild(novo);
     }
 
     function removerIngrediente(botao) {
       botao.parentElement.remove();
     }
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let select = document.querySelector(".custom-select");
+        let selected = select.querySelector(".select-selected");
+        let items = select.querySelector(".select-items");
+
+        selected.addEventListener("click", function () {
+            items.classList.toggle("select-hide");
+            this.classList.toggle("active");
+        });
+
+        items.querySelectorAll("div").forEach(option => {
+            option.addEventListener("click", function () {
+                selected.textContent = this.textContent;
+
+                document.getElementById("categoria").value = this.textContent;
+
+                items.querySelectorAll("div").forEach(opt => opt.classList.remove("same-as-selected"));
+                this.classList.add("same-as-selected");
+
+                items.classList.add("select-hide");
+            });
+        });
+
+        // ⬅️ FECHAR AO CLICAR FORA
+        document.addEventListener("click", function (e) {
+            if (!select.contains(e.target)) {
+                items.classList.add("select-hide");
+                selected.classList.remove("active");
+            }
+        });
+
+        // Arquivo de imagem
+        document.getElementById("imagem").addEventListener("change", function () {
+            const nomeArquivo = document.querySelector('.nome-arquivo');
+            nomeArquivo.textContent = this.files.length ? this.files[0].name : "Nenhum ficheiro selecionado";
+        });
+
+        // Preencher select ao editar
+        const categoriaValor = "{{ receita.categoria if receita else '' }}";
+
+        if (categoriaValor) {
+            const selected = document.querySelector(".select-selected");
+            const items = document.querySelectorAll(".select-items div");
+
+            items.forEach(item => {
+                if (item.getAttribute("value") === categoriaValor) {
+                    selected.textContent = item.textContent;
+                    item.classList.add("same-as-selected");
+                }
+            });
+        }
+    });
+
   </script>
 </head>
+
 <body>
+
+  <div id="menu" class="menu">
+    <button id="toggle-btn" class="toggle-btn">←</button>
+    <ul>
+      <li>
+        <img class="img_menu" src="../static/css/assets/homem-usuario 1.png" alt=""> 
+        <a href="{{ url_for('editar_conta') }}">Perfil</a>
+          
+    </li>
+      <li class="ativo"><img class="img_menu" src="../static/css/assets/coracao 1.png" alt=""><a href="{{ url_for('favoritos') }}">Favoritos</a></li>
+      <li><img class="img_menu" src="../static/css/assets/panela 1.png" alt=""><a href="{{ url_for('preferencias') }}">Preferências</a></li>
+      <li><img class="img_menu" src="../static/css/assets/abra-o-livro 1.png" alt=""><a href="{{ url_for('minhas_receitas') }}">Minhas Receitas</a></li>
+      <li><img class="img_menu" src="../static/css/assets/lupa (1) 1.png" alt=""><a href="{{ url_for('dashboard') }}">Explorar</a></li>
+    </ul>
+  </div>
+
+  <!-- IMAGEM MENINA -->
+  <img src="../static/css/assets/meninarosa.png" class="menina-img">
+
   <main class="container">
-    <h1>➕ Cadastrar Nova Receita</h1>
 
-    <form method="POST" action="{{ url_for('nova_receita') }}" class="form-receita" enctype="multipart/form-data">
+    <a href="{{ url_for('minhas_receitas') }}" class="btn-voltar">← Voltar</a>
 
-      <label for="titulo">Título da Receita:</label>
-      <input type="text" id="titulo" name="titulo" required>
+    <h2>{{ 'Editar Receita' if receita else 'Cadastrar Nova Receita' }}</h2>
 
-      <label for="imagem">Imagem da Receita:</label>
-      <input type="file" id="imagem" name="imagem" accept="image/*">
+    <form method="POST" action="{{ url_for('nova_receita') }}" enctype="multipart/form-data" class="form-receita">
+
+      {% if receita %}
+      <input type="hidden" name="id_receita" value="{{ receita.id }}">
+      {% endif %}
+
+      <div class="linha">
+          <div class="col-esq">
+              <label>Título da Receita</label>
+              <input class="input1" type="text" name="titulo" placeholder="Digite o título da receita" value="{{ receita.titulo if receita else '' }}" required>
 
 
-      <label for="categoria">Categoria:</label>
-      <select id="categoria" name="categoria">
-        <option value="Entrada">Entrada</option>
-        <option value="Prato Principal">Prato Principal</option>
-        <option value="Acompanhamento">Acompanhamento</option>
-        <option value="Sobremesa">Sobremesa</option>
-        <option value="Outros">Outros</option>
-      </select>
+              <label>Utensílios</label>
+              <input type="text" name="utensilios" placeholder="Liste os utensílios" value="{{ receita.utensilios if receita else '' }}">
 
-      <label for="utensilios">Utensílios:</label>
-      <textarea id="utensilios" name="utensilios" rows="2"></textarea>
+          </div>
 
-      <label for="instrucoes">Modo de Preparo:</label>
-      <textarea id="instrucoes" name="instrucoes" rows="5" required></textarea>
+          <div class="col-dir">
+              <label>Modo de Preparo</label>
+              <textarea id="instrucoes" name="instrucoes" rows="6" required>
+              {{ receita.instrucoes if receita else '' }}
+              </textarea>
 
-      <h3>🥣 Ingredientes</h3>
-      <div id="ingredientes-container">
-        <div class="ingrediente-item">
-          <input type="text" name="nome_ingrediente[]" placeholder="Ingrediente" required>
-          <input type="text" name="quantidade_ingrediente[]" placeholder="Quantidade" required>
-          <input type="text" name="unidade_medida[]" placeholder="Unidade (ex: g, ml, xícara)">
-          <button type="button" onclick="removerIngrediente(this)">❌</button>
+          </div>
+      </div>
+
+      <div class="linha">
+        <div class="col-esq">
+            <label>Categoria</label>
+            <input type="hidden" id="categoria" name="categoria" value="{{ receita.categoria if receita else '' }}">
+
+
+            <div class="custom-select">
+                <div class="select-selected">Selecione uma opção</div>
+                <div class="select-items select-hide">
+                    <div value="Entrada">Entrada</div>
+                    <div value="Prato_Principal">Prato Principal</div>
+                    <div value="Acompanhamento">Acompanhamento</div>
+                    <div value="Sobremesa">Sobremesa</div>
+                    <div value="Lanche">Lanche</div>
+                    <div value="Bebida">Bebida</div>
+                    <div value="Molho">Molho</div>
+                    <div value="Sopa">Sopa</div>
+                    <div value="Salada">Salada</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-dir">
+          <label for="imagem">Imagem da Receita</label>
+
+          <label class="upload-btn">
+            Escolher Ficheiro
+            <input type="file" id="imagem" name="imagem" accept="image/*">
+          </label>
+
+          <span class="nome-arquivo">
+              {% if receita and receita.imagem %}
+                  {{ receita.imagem.split('/')[-1] }}
+              {% else %}
+                  Nenhum ficheiro selecionado
+              {% endif %}
+          </span>
         </div>
       </div>
 
-      <button type="button" class="btn" onclick="adicionarIngrediente()">➕ Adicionar Ingrediente</button>
 
-      <br><br>
-      <button type="submit" class="btn">Salvar Receita</button>
+      <label>Ingredientes</label>
+
+      <div id="ingredientes-container">
+          {% if receita and receita.ingredientes_receita %}
+              {% for item in receita.ingredientes_receita %}
+              <div class="ingrediente-item">
+                  <input type="text" name="nome_ingrediente[]" value="{{ item.ingrediente.nome_ingrediente }}" required>
+                  <input type="text" name="quantidade_ingrediente[]" value="{{ item.quantidade_ingrediente_receita }}" required>
+                  <input type="text" name="unidade_medida[]" value="{{ item.ingrediente.unidade_medida }}">
+                  <button type="button" class="btn-remover" onclick="removerIngrediente(this)">✖</button>
+              </div>
+              {% endfor %}
+          {% else %}
+              <div class="ingrediente-item">
+                  <input type="text" name="nome_ingrediente[]" placeholder="Ingrediente" required>
+                  <input type="text" name="quantidade_ingrediente[]" placeholder="Quantidade" required>
+                  <input type="text" name="unidade_medida[]" placeholder="Unidade (ex: g, ml, xícara)">
+                  <button type="button" class="btn-remover" onclick="removerIngrediente(this)">✖</button>
+              </div>
+          {% endif %}
+      </div>
+
+
+      <button type="button" class="btn-add" onclick="adicionarIngrediente()">+ Adicionar Ingrediente</button>
+
+      <button type="submit" class="btn-salvar">Salvar Receita</button>
     </form>
 
-    <a href="{{ url_for('explorar') }}" class="btn voltar">⬅ Voltar</a>
   </main>
+
+  <script src="../static/css/script.js"></script>
 </body>
 </html>

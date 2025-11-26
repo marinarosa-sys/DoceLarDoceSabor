@@ -1,0 +1,447 @@
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Poppins:wght@300;400;500;600&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background-image: url("../css/assets/fundo_azul.png"); 
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+}
+
+/* container principal */
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(255, 246, 240);
+  border-radius: 25px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  margin: 40px auto;
+  text-align: center;
+  padding: 5px 50px;
+  width: 90%;
+  max-width: 1000px;
+  position: relative;
+  height: 600px;
+  overflow: hidden;
+}
+
+/* título principal */
+.container h2 {
+  font-family: "Indie Flower", cursive;
+  color: #B0322D;
+  font-size: 2rem;
+  margin-bottom: -1px;
+  margin-top: 20px;
+  -webkit-text-stroke: 1px #B0322D;
+}
+
+.subtitulo {
+  color: #FFAFAF;
+  font-weight: 500;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  font-size: 1.05rem;
+}
+
+/* ==============================
+   BUSCA
+================================= */
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.search-bar input {
+  padding: 10px 45px 10px 20px;
+  border-radius: 30px;
+  border: none;
+  outline: none;
+  width: 300px;
+  background-color: #FFAFAF;
+  color: #FFF7EF;
+  font-size: 0.95rem;
+}
+
+.search-bar input::placeholder {
+  color: #FFF7EF;
+  opacity: 1;
+}
+
+.search-bar button {
+  position: absolute;
+  right: calc(50% - 170px + 10px);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+  background-image: url("../css/assets/lupa.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.2s;
+}
+
+.search-bar button:hover {
+  transform: scale(1.1);
+}
+
+/* ==============================
+   GRID DE RECEITAS
+================================= */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 45px;
+  padding: 5px 10px 0 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #C87B75 #fff6f0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.grid::-webkit-scrollbar {
+  width: 8px;
+}
+.grid::-webkit-scrollbar-track {
+  background: #fff6f0;
+  border-radius: 10px;
+}
+.grid::-webkit-scrollbar-thumb {
+  background-color: #b65a56;
+  border-radius: 10px;
+}
+
+/* ======== Card de receita ======== */
+.card {
+    background-color: rgb(176, 50, 45);
+    width: 200px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* garante espaço certinho */
+    height: auto;
+    min-height: 290px;
+    border-radius: 20px;
+    padding: 15px;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100%;
+  height: 140px;
+  border-radius: 15px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.card-content {
+  /* padding: 10px 15px; */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card-content h3 {
+  font-size: 15.5px;
+  color: #FFF7EF;
+  margin: 0;
+}
+
+.card-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #ffe7e0;
+}
+
+/* botão de detalhe (setinha branca) */
+.card-content a.btn {
+  background-color: #fff;
+  color: #B0322D;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.card-content a.btn:hover {
+  transform: scale(1.12); 
+  transition: 0.2s ease;
+}
+
+.icons-card {
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* X à esquerda, seta à direita */
+    align-items: center;
+    margin-top: auto; /* fixa no final */
+}
+
+/* --- Botão Editar (azul) --- */
+.editar-btn {
+    background-color: #75C8C8 !important;
+    color: white !important;
+    padding: 1px 80px;
+    border-radius: 12px !important;
+    font-weight: bold !important;
+    font-size: 15px;
+    border: none;
+    transition: 0.2s ease;
+    align-self: center;
+    margin-top: 5px;
+}
+
+.editar-btn:hover {
+  transform: scale(1.03) !important;
+}
+
+/* --- Botão Remover (X) --- */
+.remover-btn {
+    background-color: #FFF7EF;
+    color: #B0322D;
+    border: none !important;
+    border-radius: 12px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.remover-btn:hover {
+  transform: scale(1.12);
+}
+
+/* ==============================
+   BOTÃO ADICIONAR RECEITA
+================================= */
+.acoes {
+  text-align: center;
+  margin-top: 40px;
+  margin-left: 560px;
+  position: relative;
+  top: -20px;
+}
+
+.acoes a.btn {
+  background-color: #B0322D;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s ease;
+}
+
+.acoes a.btn:hover {
+  background-color: #a12b22;
+  transform: scale(1.03);
+  transition: 0.2s ease;
+}
+
+/* ==============================
+   DECORAÇÕES (LOGO E BICHINHO)
+================================= */
+.logo-cantinho {
+  position: absolute;
+  bottom: 10px;
+  left: 165px;
+  width: 320px;
+  z-index: 10;
+}
+
+.bichinho-topo{
+  position: absolute;
+  top: 10px;
+  right: 11%;
+  width: 160px;
+  z-index: 10;
+}
+
+.modal {
+  position: fixed;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hidden { display: none; }
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  width: 300px;
+}
+
+
+/* ==============================
+   RESPONSIVIDADE
+================================= */
+
+@media (max-width: 1190px) {
+  .bichinho-topo,
+  .logo-cantinho {
+    display: none;
+  }
+  .container {
+    height: 550px;
+    margin: 20px auto;
+  }
+  .subtitulo {
+    margin-bottom: 10px;
+  }
+  .search-bar {
+    margin-bottom: 15px;
+  }
+  .card {
+    height: 260px;
+  }
+  /* .grid {
+    padding: 20px 10px;
+  } */
+}
+
+@media (max-width: 883px) {
+  .acoes a.btn {
+    width: 180px;
+  }
+}
+
+@media (max-width: 830px) {
+  .acoes a.btn {
+    width: 180px;
+  }
+  .acoes {
+    margin-left: 0px;
+  }
+}
+
+@media (max-width: 570px) {
+  .subtitulo {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 430px) {
+  .subtitulo {
+    font-size: 11px;
+    width: 270px;
+  }
+}
+
+@media (max-width: 460px) {
+  .search-bar input {
+    width: 190px;
+  }
+  .search-bar button {
+    right: calc(50% - 150px + 40px);
+  }
+  .card {
+    width: 160px;
+  }
+  .card-content h3 {
+    font-size: 13px;
+  }
+  .card-content p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  /* .container {
+    padding: 15px 20px;
+  }
+  .grid {
+    gap: 25px;
+  }
+  .card {
+    width: 150px;
+    height: 230px;
+  }
+  .acoes {
+    margin-top: 20px;
+  } */
+
+  .search-bar input {
+    width: 160px;
+  }
+  .search-bar button {
+    right: calc(50% - 140px + 40px);
+  }
+}
+
+@media (max-width: 360px) {
+  .acoes a.btn {
+    padding: 10px 0px;
+    font-size: 12px;
+    justify-content: center;
+  }
+
+  .subtitulo {
+    width: 200px;
+  }
+
+  .search-bar input {
+    width: 120px;
+  }
+
+  .search-bar input {
+    font-size: 13px;
+  }
+
+  .search-bar button {
+    right: calc(50% - 120px + 40px);
+  }
+
+  .container h2 {
+    font-size: 26px;
+  }
+
+}
+
+@media (max-width: 320px) {
+  .menu {
+    left: -100px;
+  }
+  .menu.recolhido {
+     left: -320px;
+  }
+  .search-bar button {
+    width: 20px;
+    height: 20px;
+  }
+  .container {
+    padding: 5px 5px 10px 60px;
+  }
+}

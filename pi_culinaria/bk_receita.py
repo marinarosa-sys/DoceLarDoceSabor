@@ -48,6 +48,7 @@ class Avaliacao(db.Model):
     nota = db.Column(db.Integer, nullable=False)  # de 1 a 5 estrelas
     comentario = db.Column(db.Text)
     data_avaliacao = db.Column(db.DateTime, server_default=db.func.now())
+    treinado = db.Column(db.Boolean, default=False)
 
     usuario = db.relationship("Usuario", backref="avaliacoes", lazy=True)
     receita = db.relationship("Receita", backref="avaliacoes", lazy=True)
