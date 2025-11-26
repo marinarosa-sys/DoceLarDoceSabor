@@ -1,0 +1,122 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Miriam+Libre:wght@400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Indie+Flower&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
+
+.menu {
+  position: fixed;
+  top: 10;
+  left: 0;
+  width: 65vh;
+  height: 95vh;
+  background-image: url("../css/assets/menu_geladeira.png");
+  background-position: center;
+  background-size: cover;
+  color: white;
+  padding: 20px;
+  transition: left 0.4s ease;
+}
+
+li{
+  display: flex;
+  align-items: center;
+  width: 270px;
+  background-color: transparent;
+  height: 40px;
+  border-radius: 10px 0px 0px 10px ;
+  margin-bottom: 15px;
+  list-style-type: none;
+  margin-left: 60px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+}
+
+ul{
+  margin-top: 120px;
+}
+
+li a {
+  width: 100%;
+  height: 100%;
+  line-height: 60px;
+  text-decoration: none;
+  color: #B0322D;
+  padding-left: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+  z-index: 10000;
+}
+
+li:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+li.ativo {
+  background-color: white;
+}
+
+li.ativo a {
+  color: #B0322D;
+  font-weight: bold;
+}
+
+.menu.recolhido {
+  left: -330px; 
+}
+
+.img_menu{
+  height: 60%;
+  margin-top: 5px;
+  margin-left: 9px;
+}
+
+.toggle-btn {
+  position: absolute;
+  top: 70px;
+  left: 330px;
+  color: #ffffff;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  font-size: 30px;
+  cursor: pointer;
+  transition: right 0.4s ease, transform 0.3s ease;
+  background-color: transparent;
+}
+
+main {
+  margin-left: 260px;
+  padding: 20px;
+  transition: margin-left 0.4s ease;
+}
+
+.menu.recolhido ~ main {
+  margin-left: 80px;
+}
+
+.menu.recolhido li.ativo {
+  background-color: transparent;
+}
+
+.menu.recolhido li.ativo a {
+  color: white; 
+}
+
+
+
+@media (max-width: 1250px) {
+  .menu{
+    width: 55vh;
+  }
+
+  li{
+    margin-left: 40px;
+  }
+
+  .toggle-btn{
+    margin-left: -40px;
+  }
+
+  .menu.recolhido {
+  left: -310px; 
+}
+}

@@ -4,27 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ receita.titulo }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='receita-individual.css') }}">
 </head>
 <body>
-  <main class="container receita-detalhe">
+  <div class="left-page-recipe">
     <a href="{{ url_for('explorar') }}" class="voltar">⬅ Voltar</a>
+
+    <img  class="fita-superior-esquerda"  src="../static/css/assets/fita-foto-receita.png" alt="">
+    {% if receita.imagem %}
+      <img  class="img-receita"  src="{{ url_for('static', filename=receita.imagem) }}" 
+           alt="{{ receita.titulo }}"
+           >
+    {% endif %}
+    <img class="fita-inferior-direita" src="../static/css/assets/fita-foto-receita.png" alt="">
+
+  </div>
+  <div class="container-receita-detalhe">
+    
 
     <section class="receita-info">
       <h1>{{ receita.titulo }}</h1>
-      <img src="{{ url_for('static', filename=receita.imagem) }}" 
-           alt="{{ receita.titulo }}"
-           width="400" height="300">
 
       <p><strong>Categoria:</strong> {{ receita.categoria or 'Não informada' }}</p>
 
+      <!-- 🆕 Informações adicionais -->
+      <div class="info-extra">
+        {% if receita.dificuldade %}
+          <p>💪 <strong>Dificuldade:</strong> {{ receita.dificuldade }}</p>
+        {% endif %}
+        {% if receita.tempo_preparo %}
+          <p>⏱️ <strong>Tempo de preparo:</strong> {{ receita.tempo_preparo }}</p>
+        {% endif %}
+        {% if receita.custo %}
+          <p>💰 <strong>Custo:</strong> {{ receita.custo }}</p>
+        {% endif %}
+        {% if receita.porcoes %}
+          <p>👥 <strong>Porções:</strong> {{ receita.porcoes }}</p>
+        {% endif %}
+      </div>
+
       {% if receita.utensilios %}
-      <p><strong>Utensílios:</strong> {{ receita.utensilios }}</p>
+      <p><strong>🧰 Utensílios:</strong> {{ receita.utensilios }}</p>
       {% endif %}
     </section>
 
     <section class="receita-ingredientes">
-      <h2>🧂 Ingredientes</h2>
+      <h2>Ingredientes</h2>
       <ul>
         {% for ir in receita.ingredientes_receita %}
           <li>{{ ir.quantidade_ingrediente_receita }} {{ ir.ingrediente.nome_ingrediente }}</li>
@@ -35,7 +60,7 @@
     </section>
 
     <section class="receita-instrucoes">
-      <h2>👩‍🍳 Modo de preparo</h2>
+      <h2>Modo de preparo</h2>
 
       {% set etapas = receita.instrucoes.split('.') %}
       <ol>
@@ -44,47 +69,8 @@
             <li>{{ etapa.strip() }}.</li>
           {% endif %}
         {% endfor %}
-
-       <h3>Avaliações</h3>
-
-      {% if session.username %}
-          {% if receita.usuario.username == session.username %}
-              <p>Você não pode avaliar sua própria receita.</p>
-          {% else %}
-              <form action="{{ url_for('avaliar_receita', id=receita.id) }}" method="POST">
-                  <label for="nota">Sua nota:</label>
-                  <select name="nota" id="nota" required>
-                      <option value="1">⭐ 1</option>
-                      <option value="2">⭐⭐ 2</option>
-                      <option value="3">⭐⭐⭐ 3</option>
-                      <option value="4">⭐⭐⭐⭐ 4</option>
-                      <option value="5">⭐⭐⭐⭐⭐ 5</option>
-                  </select>
-
-                  <button type="submit">Enviar avaliação</button>
-              </form>
-          {% endif %}
-      {% else %}
-          <p><a href="{{ url_for('login') }}">Entre</a> para avaliar esta receita.</p>
-      {% endif %}
-
-    <hr>
-
-    {% for avaliacao in receita.avaliacoes %}
-        <div>
-            <strong>{{ avaliacao.usuario.username }}</strong>
-            <p>⭐ {{ avaliacao.nota }} / 5</p>
-            {% if avaliacao.comentario %}
-                <p>{{ avaliacao.comentario }}</p>
-            {% endif %}
-            <small>{{ avaliacao.data_avaliacao.strftime("%d/%m/%Y %H:%M") }}</small>
-        </div>
-        <hr>
-    {% else %}
-        <p>Nenhuma avaliação ainda. Seja o primeiro!</p>
-    {% endfor %}
       </ol>
     </section>
-  </main>
+  </div>
 </body>
 </html>

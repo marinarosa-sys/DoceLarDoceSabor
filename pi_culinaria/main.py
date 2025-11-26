@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, flash
 from sqlalchemy import text
 from bk_usuario import db, Usuario  # Import do models
 import os
@@ -58,9 +58,16 @@ def cadastro():
 # Dashboard
 @app.route("/dashboard")
 def dashboard():
-    if "username" in session:
-        return render_template("dashboard.html", username=session['username'])
-    return redirect(url_for('login'))
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user = Usuario.query.filter_by(username=session["username"]).first()
+
+    if user.tipo_usuario == "admin":
+        return redirect(url_for("admin_home"))
+
+
+    return render_template("dashboard.html", username=user.username)
 
 
 # Logout
@@ -148,6 +155,7 @@ def nova_receita():
     if request.method == "POST":
         titulo = request.form["titulo"]
 
+        # 🖼️ Upload da imagem
         file = request.files.get("imagem")
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -156,32 +164,44 @@ def nova_receita():
         else:
             imagem_path = None
 
+        # 📋 Dados gerais
         instrucoes = request.form["instrucoes"]
         categoria = request.form["categoria"]
         utensilios = request.form["utensilios"]
 
-        # 🔍 Pega o usuário logado
+        # ⚙️ Novos campos
+        dificuldade = request.form.get("dificuldade")
+        tempo_preparo = request.form.get("tempo_preparo")
+        custo = request.form.get("custo")
+        porcoes = request.form.get("porcoes")
+
+        # 🔍 Usuário logado
         user = Usuario.query.filter_by(username=session["username"]).first()
 
-        # Cria a receita vinculada ao usuário
+        # 🍳 Cria nova receita
         nova = Receita(
             titulo=titulo,
             imagem=imagem_path,
             instrucoes=instrucoes,
             categoria=categoria,
             utensilios=utensilios,
-            fk_usuario=user.id_usuario  # 👈 salva o ID do usuário
+            dificuldade=dificuldade,
+            tempo_preparo=tempo_preparo,
+            custo=custo,
+            porcoes=porcoes,
+            fk_usuario=user.id_usuario
         )
         db.session.add(nova)
         db.session.commit()
 
-        # Pega os ingredientes enviados pelo formulário
+        # 🧂 Ingredientes
         nomes_ingredientes = request.form.getlist("nome_ingrediente[]")
         quantidades = request.form.getlist("quantidade_ingrediente[]")
         unidades = request.form.getlist("unidade_medida[]")
 
         for nome, qtd, unidade in zip(nomes_ingredientes, quantidades, unidades):
             if nome.strip():
+                # Verifica se o ingrediente já existe
                 ingrediente_existente = Ingrediente.query.filter_by(nome_ingrediente=nome).first()
 
                 if not ingrediente_existente:
@@ -191,6 +211,7 @@ def nova_receita():
                 else:
                     ingrediente = ingrediente_existente
 
+                # Cria a relação ingrediente ↔ receita
                 relacao = IngredienteReceita(
                     fk_receita=nova.id,
                     fk_ingrediente=ingrediente.id_ingrediente,
@@ -199,9 +220,11 @@ def nova_receita():
                 db.session.add(relacao)
 
         db.session.commit()
+
         return redirect(url_for("explorar"))
 
     return render_template("nova_receita.html")
+
 
 
 
@@ -324,6 +347,141 @@ def preferencias():
         intolerancias_usuario=intolerancias_usuario
     )
 
+@app.route("/admin_home")
+@Usuario.admin_required
+def admin_home():
+    # Total de usuários
+    total_usuarios = Usuario.query.count()
+
+    # Total de receitas
+    from bk_receita import Receita
+    total_receitas = Receita.query.count()
+
+    # Receitas por categoria (GROUP BY)
+    receitas_por_categoria = (
+        db.session.query(Receita.categoria, db.func.count(Receita.id))
+        .group_by(Receita.categoria)
+        .all()
+    )
+
+    # Monta listas para usar no gráfico
+    categorias = [r[0] for r in receitas_por_categoria]
+    quantidades = [r[1] for r in receitas_por_categoria]
+
+    return render_template(
+        "admin_home.html",
+        total_usuarios=total_usuarios,
+        total_receitas=total_receitas,
+        categorias=categorias,
+        quantidades=quantidades
+    )
+
+@app.route("/admin/usuarios")
+@Usuario.admin_required
+def gerenciar_usuarios():
+    termo = request.args.get("q", "").strip().lower()
+    filtro_status = request.args.get("status", "todos")
+
+    query = Usuario.query
+
+    # 🔍 Filtro por busca
+    if termo:
+        query = query.filter(func.lower(Usuario.username).like(f"%{termo}%"))
+
+    # 🔽 Filtro por status
+    if filtro_status != "todos":
+        query = query.filter(Usuario.status == filtro_status)
+
+    usuarios = query.all()
+
+    return render_template(
+        "gerenciar_usuarios.html",
+        usuarios=usuarios,
+        termo=termo,
+        filtro_status=filtro_status
+    )
+
+@app.route("/admin/usuarios/banir/<int:id>")
+@Usuario.admin_required
+def banir_usuario(id):
+    usuario = Usuario.query.get_or_404(id)
+
+    usuario.status = "inativo"
+
+    # 🔥 Apaga todas as receitas dele
+    for r in usuario.receitas:
+        db.session.delete(r)
+
+    db.session.commit()
+
+    flash("Usuário inativado e suas receitas foram removidas.", "warning")
+    return redirect(url_for('admin_usuarios'))
+
+
+
+@app.route("/admin/usuarios/novo", methods=[ "POST"])
+@Usuario.admin_required
+def novo_usuario_admin():
+    if request.method == "POST":
+        nome = request.form["nome_completo"]
+        email = request.form["email_usuario"]
+        username = request.form["username"]
+        senha = request.form["senha"]
+
+        novo = Usuario(
+            nome_completo=nome,
+            email_usuario=email,
+            username=username,
+            senha=senha,
+            tipo_usuario="admin",
+            status="ativo"
+        )
+
+        db.session.add(novo)
+        db.session.commit()
+
+        flash("Administrador criado com sucesso!", "success")
+        return redirect(url_for("gerenciar_usuarios"))
+
+    return render_template("admin_novo_usuario.html")
+
+
+@app.route("/admin/receitas")
+@Usuario.admin_required
+def gerenciar_receitas():
+    termo = request.args.get("q", "")
+
+    query = Receita.query
+
+    if termo:
+        termo = f"%{termo}%"
+        query = query.filter(
+            (Receita.titulo.ilike(termo)) |
+            (Receita.categoria.ilike(termo))
+        )
+
+    receitas = query.order_by(Receita.id.desc()).all()
+    return render_template("admin_receitas.html", receitas=receitas)
+
+@app.route("/admin/receitas/<int:id>")
+@Usuario.admin_required
+def ver_receita_admin(id):
+    receita = Receita.query.get_or_404(id)
+    return render_template("admin_ver_receita.html", receita=receita)
+
+@app.route("/admin/receitas/remover/<int:id>")
+@Usuario.admin_required
+def remover_receita(id):
+    receita = Receita.query.get_or_404(id)
+
+    # 🔹 Deleta todos os ingredientes relacionados a essa receita
+    IngredienteReceita.query.filter_by(fk_receita=receita.id).delete()
+
+    # 🔹 Depois deleta a receita
+    db.session.delete(receita)
+    db.session.commit()
+
+    return redirect(url_for("gerenciar_receitas"))
 
 
 # Inicialização do servidor

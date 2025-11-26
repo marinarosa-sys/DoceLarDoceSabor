@@ -13,13 +13,39 @@ class Receita(db.Model):
     categoria = db.Column(db.String(100))
     utensilios = db.Column(db.Text)
 
-    # Relacionamento com ingredientes
+    # 🆕 Novos campos
+    dificuldade = db.Column(db.String(50))  # Ex: Fácil, Médio, Difícil
+    tempo_preparo = db.Column(db.String(50))  # Ex: "45 minutos", "1h 30min"
+    custo = db.Column(db.String(50))  # Ex: "Baixo", "Médio", "Alto"
+    porcoes = db.Column(db.Integer)  # Ex: número de pessoas ou porções
+
+    # Relacionamento com o usuário
     usuario = db.relationship("Usuario", backref="receitas", lazy=True)
+
+    # Relacionamento com ingredientes
     ingredientes_receita = db.relationship(
         "IngredienteReceita",
         back_populates="receita",
         lazy="joined"
     )
+
+    def apagar_receitas_usuario(id_usuario):
+        # Buscar todas as receitas do usuário
+        receitas = Receita.query.filter_by(fk_usuario=id_usuario).all()
+
+        for receita in receitas:
+            # Apaga avaliações relacionadas
+            Avaliacao.query.filter_by(fk_receita=receita.id).delete()
+
+            # Apaga ingredientes relacionados
+            IngredienteReceita.query.filter_by(fk_receita=receita.id).delete()
+
+            # Apaga a própria receita
+            db.session.delete(receita)
+
+        db.session.commit()
+
+
 
 class IngredienteReceita(db.Model):
     __tablename__ = "tb_ingrediente_receita"
@@ -31,13 +57,15 @@ class IngredienteReceita(db.Model):
 
     receita = db.relationship("Receita", back_populates="ingredientes_receita")
     ingrediente = db.relationship("Ingrediente")
-    
+
+
 class Ingrediente(db.Model):
     __tablename__ = "tb_ingredientes"
 
     id_ingrediente = db.Column(db.Integer, primary_key=True)
     nome_ingrediente = db.Column(db.String(255), nullable=False)
     unidade_medida = db.Column(db.String(50))
+
 
 class Avaliacao(db.Model):
     __tablename__ = "tb_avaliacoes"
@@ -51,7 +79,8 @@ class Avaliacao(db.Model):
 
     usuario = db.relationship("Usuario", backref="avaliacoes", lazy=True)
     receita = db.relationship("Receita", backref="avaliacoes", lazy=True)
-    
+
+    @staticmethod
     def salvar_avaliacao(fk_usuario, fk_receita, nota, comentario=""):
         """Cria ou atualiza a avaliação de um usuário em uma receita."""
         avaliacao_existente = Avaliacao.query.filter_by(fk_usuario=fk_usuario, fk_receita=fk_receita).first()

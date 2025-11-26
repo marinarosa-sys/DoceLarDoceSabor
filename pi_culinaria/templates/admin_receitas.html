@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1 class="mb-4">Gerenciar Receitas</h1>
+
+<!-- 🔍 Barra de pesquisa -->
+<form method="GET" class="d-flex mb-4" role="search">
+    <input name="q" class="form-control me-2" type="search" placeholder="Pesquisar por nome ou categoria">
+    <button class="btn btn-primary" type="submit">Buscar</button>
+</form>
+
+<div class="row">
+    {% for r in receitas %}
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+
+            {% if r.imagem %}
+                <img src="{{ url_for('static', filename=r.imagem) }}" class="card-img-top" alt="{{ r.titulo }}"
+                     style="height: 200px; object-fit: cover;">
+            {% endif %}
+
+            <div class="card-body">
+                <h4 class="card-title">{{ r.titulo }}</h4>
+
+                <p class="card-text"><strong>Categoria:</strong> {{ r.categoria }}</p>
+
+                <p class="card-text">
+                    <strong>Avaliação:</strong>
+                    ⭐ {{ "%.1f" | format(r.avaliacao) if r.avaliacao else "Sem avaliação" }}
+                </p>
+
+                <p class="card-text">
+                    <strong>Autor:</strong> {{ r.fk_usuario }}
+                </p>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{{ url_for('ver_receita_admin', id=r.id) }}" class="btn btn-primary">
+                        Ver
+                    </a>
+
+                    <a href="{{ url_for('remover_receita', id=r.id) }}"
+                       class="btn btn-danger"
+                       onclick="return confirm('Remover esta receita?');">
+                        Remover
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

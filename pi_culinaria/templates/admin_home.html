@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Painel Administrativo</h1>
+
+<!-- Botões superiores -->
+<div style="display:flex; gap:15px; margin-bottom:25px;">
+    <a href="{{ url_for('gerenciar_usuarios') }}" class="btn btn-primary">Gerenciar Usuários</a>
+    <a href="{{ url_for('gerenciar_receitas') }}" class="btn btn-primary">Gerenciar Receitas</a>
+    <a href="{{ url_for('editar_conta') }}" class="btn btn-secondary">Editar Conta</a>
+</div>
+
+<!-- Cards numéricos -->
+<div style="display:flex; gap:20px; margin-bottom:30px;">
+    <div class="card" style="padding:20px; width:200px;">
+        <h4>Total Usuários</h4>
+        <p style="font-size:24px;">{{ total_usuarios }}</p>
+    </div>
+
+    <div class="card" style="padding:20px; width:200px;">
+        <h4>Total Receitas</h4>
+        <p style="font-size:24px;">{{ total_receitas }}</p>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<h3>Receitas por Categoria</h3>
+<canvas id="graficoCategorias" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</body>
+<script>
+    const ctx = document.getElementById('graficoCategorias');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: JSON.parse('{{ categorias | tojson | safe }}'),
+            datasets: [{
+                label: 'Receitas por Categoria',
+                data: JSON.parse('{{ quantidades | tojson | safe }}'),
+                borderWidth: 1
+            }]
+        }
+    });
+</script>
+
+</html>

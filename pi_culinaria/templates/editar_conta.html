@@ -1,40 +1,63 @@
 {% extends "base.html" %}
+{% set body_class = "editar-conta" %}
 {% block body %}
-<div class="container">
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Voltar ao menu do usuário</a>
-    <h1>Editar Conta</h1>
 
-    {% if sucesso %}
-        <p style="color: green;">{{ sucesso }}</p>
-    {% endif %}
-    {% if erro %}
-        <p style="color: red;">{{ erro }}</p>
-    {% endif %}
-
-    <form action="{{ url_for('editar_conta') }}" method="post">
-        <label>Nome completo:</label>
-        <input type="text" name="nome_completo" value="{{ user.nome_completo }}" required class="input-field" />
-
-        <label>Usuário:</label>
-        <input type="text" name="username" value="{{ user.username }}" required class="input-field" />
-
-        <label>E-mail:</label>
-        <input type="email" name="email_usuario" value="{{ user.email_usuario }}" required class="input-field" />
-
-        <label>Nova senha (deixe em branco para não alterar):</label>
-        <input type="password" name="senha" placeholder="Digite uma nova senha" class="input-field" />
-
-        <input type="submit" value="Salvar alterações" class="btn btn-login" />
-    </form>
-
-    <hr>
-    <h3>Desativar minha conta</h3>
-    <form action="{{ url_for('desativar_conta') }}" method="post">
-        <label>Confirme sua senha:</label>
-        <input type="password" name="senha_confirm" placeholder="Digite sua senha" required class="input-field" />
-        <input type="submit" value="Desativar minha conta" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja desativar sua conta?')" />
-    </form>
-
-    <p><a href="{{ url_for('dashboard') }}">Voltar</a></p>
+<div id="menu" class="menu">
+    <button id="toggle-btn" class="toggle-btn">←</button>
+    <ul>
+      <li class="ativo">
+        <img class="img_menu" src="../static/css/assets/homem-usuario 1.png" alt="">
+        <a href="{{ url_for('editar_conta') }}">Perfil</a>     
+    </li>
+      <li><img class="img_menu" src="../static/css/assets/coracao 1.png" alt=""><a href="{{ url_for('favoritos') }}">Favoritos</a></li>
+      <li><img class="img_menu" src="../static/css/assets/panela 1.png" alt=""><a href="{{ url_for('preferencias') }}">Preferências</a></li>
+      <li><img class="img_menu" src="../static/css/assets/abra-o-livro 1.png" alt=""><a href="{{ url_for('minhas_receitas') }}">Minhas Receitas</a></li>
+      <li><img class="img_menu" src="../static/css/assets/lupa (1) 1.png" alt=""><a href="{{ url_for('explorar') }}">Explorar</a></li>
+    </ul>
 </div>
+
+
+
+<div class="container">
+    <img class="icon-azul-editar-conta" src="../static/css/assets/icone-azul.png" alt="">
+    <div class="container-editor">
+        <img src="../static/css/assets/editar.png" alt="">
+        <h1>Editar informações</h1>
+
+        {% if sucesso %}
+            <p style="color: green;">{{ sucesso }}</p>
+        {% endif %}
+        {% if erro %}
+            <p style="color: red;">{{ erro }}</p>
+        {% endif %}
+
+        <form  class="form-editor-info" action="{{ url_for('editar_conta') }}" method="post">
+            <label>Nome completo</label>
+            <input type="text" name="nome_completo" value="{{ user.nome_completo }}" required class="input-field" />
+
+            <label>Username</label>
+            <input type="text" name="username" value="{{ user.username }}" required class="input-field" />
+
+            <label>E-mail</label>
+            <input type="email" name="email_usuario" value="{{ user.email_usuario }}" required class="input-field" />
+
+            <label>Nova senha</label>
+            <input type="password" name="senha" placeholder="" class="input-field" />
+
+            <input type="submit" value="Confirmar" class="btn btn-editar-infos" />
+        </form>
+    </div>
+
+    <div class="container-deletar-conta">
+        <h1>Desativar conta</h1>
+        <p>Para deletar sua conta, digite a senha no campo abaixo.</p>
+        <form class="form-deletar-conta"action="{{ url_for('desativar_conta') }}" method="post">
+            <label>Senha</label>
+            <input type="password" name="senha_confirm" placeholder="Digite sua senha" required class="input-field" />
+            <input type="submit" value="Confirmar" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja desativar sua conta?')" />
+        </form>
+    </div>
+
+</div>
+<script src="../static/css/script.js"></script>
 {% endblock %}
