@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+body {
+  background-color: #FFEAEA;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.search-bar {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.search-bar input {
+  padding: 8px;
+  width: 400px;
+  background-color: #E7E8E9;
+  border-radius: 20px;
+  border: none;
+  height: 22px;
+  z-index: 10;
+}
+
+.search-bar button {
+  padding: 14px 12px;
+  background-color: #75C8C8;
+  color: white;
+  border: none;
+  height: 40px;
+  border-radius: 50px;
+  width: 40px;
+  cursor: pointer;
+  z-index: 10000;
+  margin-left: 30px;
+}
+
+.barra-pesquisa-botao{
+  width: 500px;
+  background-color: #E7E8E9;
+  border-radius: 20px;
+  border: none;
+  height: 40px;
+  z-index: 10;
+}
+
+.grid {
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  grid-template-columns: repeat(3, minmax(280px, 0.3fr));
+  gap: 25px;
+  margin: 0px 100px;
+}
+
+.card {
+  background: #FFAFAF;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+  height: 370px;
+  width: 290px;
+  font-family: "Montserrat", sans-serif;
+  position: relative;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card img {
+  display: flex;
+  justify-self: center;
+  border-radius: 15px;
+  width: 90%;
+  height: 180px;
+  margin-top: 15px;
+  object-fit: cover;
+  
+}
+
+.card-content {
+  padding: 12px;
+  margin-left: 5px;
+}
+
+.card-content h2 {
+  color: #ffffff;
+  font-weight: 600;  
+  font-size: 19px;
+  margin: 0px;
+}
+
+.card-content p {
+  color: #B0322D;
+  font-weight: 600;  
+  font-size: 17px;
+  margin-top: 5px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;   
+  justify-content: center; 
+  padding: 0 10px;
+  background-image: url('../static/css/assets/Group\ 99.png');
+  background-position: center;
+  background-size: cover;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  width: 270px;
+  height: 60px;
+  position: absolute;
+  bottom: 10px;
+}
+
+.btn-voltar {
+  display: inline-block;
+  margin-bottom: 20px;
+  text-decoration: none;
+  color: #2c7a7b;
+  font-weight: bold;
+}
+
+.recipe-img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.pesquisa-explorar{
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.frase-explorar{
+   width: 45%;
+   margin-top: 40px;
+}
+
+.recomendacoes{
+    background-size: cover;
+    background-position: center;
+    background-image: url(../static/css/assets/Group\ 95\ \(2\).png);
+    width: 103%;
+    height: 700px;
+    margin: 0px;
+    padding: 0px;
+    margin-left: -15px;
+    margin-top: 100px;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.caixa-recomendacoes{
+    background-color: white;
+    height: 80%;
+    width: 70%;
+    border-radius: 30px;
+    box-shadow: 2px 4px 73.1px 59px rgba(149, 200, 200, 0.25);
+    font-family: "indie flowers", cursive;
+    color: #FFAFAF;
+}
+
+.icon-vermelho-explorar{
+    position: absolute;
+    top: 300px;
+    left: 45%;
+    height: 30%;
+}
+
+.caixa-recomendacoes h1{
+    margin-top: 50px;
+}
+
+.layout-card{
+  display: flex;
+  align-items: flex-start;
+}

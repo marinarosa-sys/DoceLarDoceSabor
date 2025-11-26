@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Gerenciar Usuários</h1>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    
+    <!-- 🔍 Busca -->
+    <form class="d-flex" method="get">
+        <input type="text" name="q" class="form-control me-2"
+               placeholder="Buscar por username..."
+               value="{{ termo }}">
+        
+        <select name="status" class="form-control me-2">
+            <option value="todos" {% if filtro_status == 'todos' %}selected{% endif %}>Todos</option>
+            <option value="ativo" {% if filtro_status == 'ativo' %}selected{% endif %}>Ativos</option>
+            <option value="inativo" {% if filtro_status == 'inativo' %}selected{% endif %}>Banidos</option>
+        </select>
+
+        <button class="btn btn-primary">Filtrar</button>
+    </form>
+
+    <!-- ➕ Criar novo admin -->
+    <a href="{{ url_for('novo_usuario_admin') }}" class="btn btn-success">
+        Criar Admin
+    </a>
+</div>
+
+
+<div class="row mt-4">
+
+    {% for u in usuarios %}
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+
+                <h4 class="card-title">{{ u.username }}</h4>
+                <p><strong>Nome completo:</strong> {{ u.nome_completo }}</p>
+                <p><strong>Email:</strong> {{ u.email_usuario }}</p>
+                <p><strong>Tipo:</strong> {{ u.tipo_usuario }}</p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {% if u.status == "ativo" %}
+                        <span class="text-success">Ativo</span>
+                    {% else %}
+                        <span class="text-danger">Banido</span>
+                    {% endif %}
+                </p>
+
+                <div class="d-flex justify-content-between">
+
+                    {% if u.status == "ativo" %}
+                    <a href="{{ url_for('banir_usuario', id=u.id_usuario) }}"
+                       class="btn btn-danger"
+                       onclick="return confirm('Deseja realmente banir este usuário?');">
+                        Banir
+                    </a>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>Banido</button>
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

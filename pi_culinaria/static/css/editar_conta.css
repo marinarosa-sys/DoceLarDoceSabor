@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+body.editar-conta{
+    background-image: url("../css/assets/teste1.png");
+    background-color: #FFAFAF;
+    background-size: cover;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+     z-index: 100;
+}
+
+.container-editor{
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffff;
+    width: 45%;
+    margin-bottom: 10px;
+    border-radius: 15px;
+    padding: 10px 50px;
+}
+
+.container h1 {
+  font-family: "Indie Flower", cursive;
+  margin-bottom: 0;
+  margin-top: 8px;
+  font-weight: 1000;
+
+  color: rgb(0, 0, 0); 
+  -webkit-text-stroke: 1px black; 
+}
+
+.container-editor h1 {
+  color: #75C8C8;
+  -webkit-text-stroke: 1px #75C8C8; 
+}
+
+.container-deletar-conta h1 {
+  color: #B0322D;
+  -webkit-text-stroke: 1px #B0322D; 
+}
+
+.container-deletar-conta{
+  background-color: #ffff;
+  width: 45%; 
+  border-radius: 15px;
+  padding: 10px 50px;
+}
+
+
+.form-editor-info{
+  display: flex;
+  flex-direction: column;
+  font-family: "Montserrat", sans-serif;
+  color: #75C8C8;
+  font-weight: 600;
+}
+
+
+.form-editor-info label{
+    margin-top: 5px;
+}
+
+.container-deletar-conta p{
+  font-family: "Montserrat", sans-serif;
+  color: #B0322D;
+  margin-top: 0px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.btn-editar-infos{
+  display: flex;
+  background-color: #75C8C8;
+  align-self: self-end;
+  border: none;
+  width: 30%;
+  height: 35px;
+  border-radius: 5px;
+  font-family: "Montserrat", sans-serif;
+  color: #ffff;
+  font-weight: 600;
+  font-size: 16px;
+  
+}
+
+.form-deletar-conta{
+  display: flex;
+  flex-direction: column;
+}
+
+.form-deletar-conta input{
+  margin-bottom: 5px;
+}
+
+.form-deletar-conta label{
+  font-family: "Montserrat", sans-serif;
+  color: #B0322D;
+  font-weight: 600;
+}
+
+.form-editor-info input{
+  margin-bottom: 5px;
+}
+
+.btn-danger{
+  display: flex;
+  background-color: #B0322D;
+  align-self: self-end;
+  border: none;
+  width: 30%;
+  height: 35px;
+  border-radius: 5px;
+  font-family: "Montserrat", sans-serif;
+  color: #ffff;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.container img{
+  position: absolute;
+  top: 10px;
+  right: 15%;
+  width: 150px;
+  z-index: 10;
+  transform: rotateY(180deg);
+}
+
+.container-editor img{
+  position: absolute;
+  top: 60px;
+  right: 28%;
+  width: 40px;
+  z-index: 10;
+}

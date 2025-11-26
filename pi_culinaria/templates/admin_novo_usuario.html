@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h2>Criar Novo Usuário Admin</h2>
+
+<form method="POST">
+
+    <div class="mb-3">
+        <label>Nome:</label>
+        <input type="text" name="nome_completo" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Email:</label>
+        <input type="email" name="email_usuario" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Username:</label>
+        <input type="text" name="username" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Senha:</label>
+        <input type="password" name="senha" class="form-control" required>
+    </div>
+
+    <button class="btn btn-success" type="submit">Criar Admin</button>
+
+</form>
+
+{% endblock %}
