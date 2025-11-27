@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Indie+Flower&display=swap');
+
+
+body {
+  display: flex;
+    align-self: center;
+    margin: 0;
+    /* padding: 20px; */
+    align-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.left-page-recipe{
+    background-image: url(css/assets/background-receita.png);
+    background-size: cover;
+    background-position: center;
+    margin: 0px;
+    height: 100vh;
+    width: 50%;
+}
+
+.img-receita{
+    position: absolute;
+    top: 12%;
+    left: 11%;
+    width: 355px;
+  height: 500px;
+  object-fit: cover;   /* Recorta mantendo o enquadramento */
+  object-position: center; /* Centraliza o corte */
+  z-index: 10;
+}
+
+.container-receita-detalhe{
+    background-image: url(css/assets/page-right-recipe.png);
+    background-size: cover;
+    background-position: center;
+    margin: 0px;
+    height: 100vh;
+    width: 50%;
+}
+
+.container-receita-detalhe section{
+    padding-left: 20px;
+
+}
+
+.receita-info h1{
+    font-family: "Homemade Apple", cursive;
+    color: #C87B75;
+    align-self: center;
+    justify-self: center;
+}
+
+.receita-ingredientes h2{
+    font-family: "Indie Flower", cursive;
+  font-weight: 1000;
+
+  color: #686664; 
+  -webkit-text-stroke: 0.3px #686664;
+  margin-bottom: 0px;
+}
+
+.receita-instrucoes h2{
+    font-family: "Indie Flower", cursive;
+  font-weight: 1000;
+
+  color: #686664; 
+  -webkit-text-stroke: 0.3px #686664;
+  margin-bottom: 0px;
+}
+
+.receita-instrucoes ol{
+  font-family: "Indie Flower", cursive;
+  color: #686664; 
+  font-size: 22px;
+  margin-top: 0px;
+}
+
+.receita-ingredientes ul{
+  font-family: "Indie Flower", cursive;
+  color: #686664; 
+  font-size: 22px;
+  margin: 0px;
+}
+
+.fita-superior-esquerda{
+  position: absolute;
+  z-index: 1000;
+    height: 30%;
+  width: auto;
+}
+
+.fita-inferior-direita{
+  position: absolute;
+  z-index: 1000;
+  bottom: 5%;
+  left: 27%;
+  height: 30%;
+  width: auto;
+}

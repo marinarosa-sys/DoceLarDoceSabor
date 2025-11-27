@@ -1,9 +1,27 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorar Receitas</title>
+  <link rel="stylesheet" href="../static/index.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+</head>
+<body>
+      
+  <header class="header-explorar">
+    <img class="icon-header" src="../static/css/assets/Group 80.png" alt="">
+    <div class="header-links">
+      <a href="{{url_for('home')}}">Início</a>
+      <img class="coracao-header" src="../static/css/assets/coracao (1) 1.png" alt="">
+      <a href="{{url_for('explorar')}}">Explorar</a>
+      
+    </div>
+    <a class="user-header"  href="{{url_for('editar_conta')}}"><img src="../static/css/assets/homem-usuario (1) 1.png" alt=""></a>
+  </header>
 
-{% block body %}
+  <h1>Onde o afeto vira receita</h1>
+  <p>O Doce Lar Doce Sabor foi desenvolvido para acolher e encantar, trazendo uma interface agradável e intuitiva.  O site faz parte de um projeto integrador acadêmico, unindo aprendizado e paixão pela culinária.</p>
 
-<h1>Cuidado, você está no index!</h1>
-<p>Se quer ver algo, complemente na barra de pesquisa "/cadastro" ou "/login"</p>
-
-
-{% endblock %}
+</body>
+</html>

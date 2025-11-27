@@ -1,8 +1,8 @@
-
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Miriam+Libre:wght@400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Indie+Flower&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
 
+/* MENU LATERAL */
 .menu {
   position: fixed;
   top: 10px;
@@ -18,23 +18,24 @@
   z-index: 1000;
 }
 
-li{
-  
+/* LISTA */
+ul {
+  margin-top: 120px;
+  position: fixed;
+}
+
+li {
+  display: flex; /* da main */
   align-items: center;
   width: 270px;
   background-color: transparent;
   height: 40px;
-  border-radius: 10px 0px 0px 10px ;
+  border-radius: 10px 0 0 10px;
   margin-bottom: 15px;
   list-style-type: none;
-  margin-left: 88px;
+  margin-left: 88px; /* seu valor atual */
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
-}
-
-ul{
-  margin-top: 120px;
-  position: fixed;
 }
 
 li a {
@@ -46,12 +47,11 @@ li a {
   z-index: 10000;
 }
 
-/* Efeito hover */
+/* EFEITOS */
 li:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Quando o item está ativo */
 li.ativo {
   background-color: white;
 }
@@ -61,11 +61,7 @@ li.ativo a {
   font-weight: bold;
 }
 
-/* MENU RECOLHIDO */
-.menu.recolhido {
-  left: -330px; 
-}
-
+/* IMAGEM LATERAL */
 .img_menu{
   height: 60%;
   margin-top: 5px;
@@ -86,41 +82,48 @@ li.ativo a {
   background-color: transparent;
 }
 
-/* CONTEÚDO PRINCIPAL */
-main {
-  /* margin-left: 260px; */
-  padding: 20px;
-  transition: margin-left 0.4s ease;
+/* MENU RECOLHIDO */
+.menu.recolhido {
+  left: -330px;
 }
 
-/* AJUSTE QUANDO MENU ESTÁ RECOLHIDO */
-.menu.recolhido ~ main {
-  /* margin-left: 80px; */
-}
-
-/* Remove o fundo branco do item ativo quando o menu estiver recolhido */
+/* QUANDO O MENU ESTÁ RECOLHIDO */
 .menu.recolhido li.ativo {
   background-color: transparent;
 }
 
 .menu.recolhido li.ativo a {
-  color: white; /* opcional, se quiser mudar a cor do texto quando recolhido */
+  color: white;
 }
 
-@media (max-width: 1190px) {
-  .menu{
-    
-  }
+/* CONTEÚDO PRINCIPAL */
+main {
+  padding: 20px;
+  transition: margin-left 0.4s ease;
+  /* Você tinha removido margin-left — então mantive sem */
+}
 
-  li{
+.menu.recolhido ~ main {
+  /* margin-left: 80px; Mantido como você tinha */
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 1190px) {
+  li {
     margin-left: 40px;
   }
 
-  .toggle-btn{
+  .toggle-btn {
     margin-left: -40px;
   }
 
   .menu.recolhido {
-  left: -310px; 
+    left: -310px; 
+  }
 }
+
+@media (max-width: 1250px) {
+  .menu {
+    width: 55vh; /* da main */
+  }
 }

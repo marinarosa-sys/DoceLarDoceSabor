@@ -2,6 +2,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, session, url_for
+from functools import wraps
 
 db = SQLAlchemy()
 
@@ -14,6 +15,7 @@ class Usuario(db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     status = db.Column(db.Enum('ativo','inativo', name='status_enum'), nullable=False, default='ativo')
+    tipo_usuario = db.Column(db.Enum('padrão','admin', name='status_enum'), nullable=False, default='padrão')
 
     def set_password(self, senha):
         self.senha = generate_password_hash(senha)
@@ -32,10 +34,19 @@ class Usuario(db.Model):
             if user and user.check_password(senha):
                 if user.status != 'ativo':
                     return render_template("login.html", error="Esta conta está desativada.")
-                # 🔥 SALVA TUDO QUE PRECISA NA SESSÃO
+
+                # Salva login
                 session['username'] = user.username
                 session['id_usuario'] = user.id_usuario
-                return redirect(url_for('dashboard'))
+
+                # 🔥 Redirecionamento correto:
+                # Se for admin → vai para o painel admin
+                if user.tipo_usuario == "admin":
+                    return redirect(url_for("admin_home"))
+
+                # Senão → dashboard normal
+                return redirect(url_for("dashboard"))
+
             else:
                 return render_template("login.html", error="Usuário ou senha inválidos")
             
@@ -47,6 +58,7 @@ class Usuario(db.Model):
             username = request.form['username']
             email = request.form['email_usuario']
             senha = request.form['senha']
+            tipo_usuario = "padrão"
 
             user = Usuario.query.filter_by(email_usuario=email).first()
 
@@ -119,6 +131,30 @@ class Usuario(db.Model):
         db.session.commit()
         session.pop("username", None)
         return render_template("index.html", sucesso="Sua conta foi desativada.")   
+    
+    
+
+    def admin_required(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if "username" not in session:
+                return redirect(url_for("login"))
+
+            user = Usuario.query.filter_by(username=session["username"]).first()
+
+            if not user:
+                return redirect(url_for("login"))
+
+            if user.tipo_usuario != "admin":
+                return render_template("403.html")  # página de acesso negado
+                # ou: return "Acesso negado", 403
+
+            return f(*args, **kwargs)
+        return wrapper
+
+
+
+
 class Favorito(db.Model):
     __tablename__ = "tb_favoritos"
 

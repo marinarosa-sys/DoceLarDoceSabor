@@ -5,35 +5,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Explorar Receitas</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='explorar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
 </head>
-<body>
-  <main class="container">
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Voltar ao menu do usuário</a>
-    <h1>🍽️ Explorar Receitas</h1>
-
-    <div class="acoes">
-      <a href="{{ url_for('nova_receita') }}" class="btn">➕ Nova Receita</a>
+<body class="explorar">
+      
+  <header class="header-explorar">
+    <img class="icon-header" src="../static/css/assets/Group 80.png" alt="">
+    <div class="header-links">
+      <a href="{{url_for('home')}}">Início</a>
+      <img class="coracao-header" src="../static/css/assets/coracao (1) 1.png" alt="">
+      <a href="{{url_for('explorar')}}">Explorar</a>
+      
     </div>
-
-    <!-- Barra de busca -->
-    <form method="get" action="{{ url_for('explorar') }}" class="search-bar">
-      <input type="text" name="q" placeholder="Buscar receita..." value="{{ request.args.get('q', '') }}">
-      <button type="submit">Buscar</button>
-    </form>
+    <a class="user-header"  href="{{url_for('editar_conta')}}"><img src="../static/css/assets/homem-usuario (1) 1.png" alt=""></a>
+  </header>
+  <main class="container">
+    <div class="pesquisa-explorar">
+      <img src="../static/css/assets/Group 94.png" alt="" class="frase-explorar">
+      <div class="barra-pesquisa-botao">
+        
+        <!-- Barra de busca -->
+        <form method="get" action="{{ url_for('explorar') }}" class="search-bar">
+          <input type="text" name="q" placeholder="Buscar receita..." value="{{ request.args.get('q', '') }}">
+          <button type="submit"></button>
+        </form>
+      </div>
+    </div>
 
     <!-- ===================== -->
     <!-- SEÇÃO DE RECOMENDAÇÕES -->
     <!-- ===================== -->
+    <img src="../static/css/assets/Group 81.png" alt="" class="icon-vermelho-explorar">
     <section id="recomendacoes" style="margin-top: 2rem;">
-      <h2>✨ Recomendações para você</h2>
+      <h2>Recomendações para você</h2>
       <div id="lista-recomendacoes" class="grid"></div>
     </section>
 
     <!-- ===================== -->
     <!-- LISTAGEM NORMAL DE RECEITAS -->
     <!-- ===================== -->
+
     <div class="grid">
+      
       {% for receita in receitas %}
       <article class="card">
         <img src="{{ url_for('static', filename=receita.imagem if receita.imagem else 'imagens_receitas/padrao.png') }}" alt="{{ receita.titulo }}">

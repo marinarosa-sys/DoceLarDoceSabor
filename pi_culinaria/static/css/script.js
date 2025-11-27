@@ -12,6 +12,7 @@ btn.addEventListener('click', () => {
   }
 });
 
+
 document.addEventListener("DOMContentLoaded", () => {
   const coracoes = document.querySelectorAll(".coracao");
 

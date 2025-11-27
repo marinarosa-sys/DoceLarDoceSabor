@@ -179,6 +179,29 @@
 
       <label>Ingredientes</label>
 
+      <!-- 🆕 Novos campos -->
+      <h3>⚙️ Informações Adicionais</h3>
+
+      <label for="dificuldade">Dificuldade:</label>
+      <select id="dificuldade" name="dificuldade" required>
+        <option value="Fácil">Fácil</option>
+        <option value="Médio">Médio</option>
+        <option value="Difícil">Difícil</option>
+      </select>
+
+      <label for="tempo_preparo">Tempo de Preparo:</label>
+      <input type="text" id="tempo_preparo" name="tempo_preparo" placeholder="Ex: 45 minutos" required>
+
+      <label for="custo">Custo:</label>
+      <select id="custo" name="custo" required>
+        <option value="Baixo">Baixo</option>
+        <option value="Médio">Médio</option>
+        <option value="Alto">Alto</option>
+      </select>
+
+      <label for="porcoes">Porções / Nº de Pessoas:</label>
+      <input type="number" id="porcoes" name="porcoes" min="1" placeholder="Ex: 4" required>
+
       <div id="ingredientes-container">
           {% if receita and receita.ingredientes_receita %}
               {% for item in receita.ingredientes_receita %}

@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Indie+Flower&display=swap');
+
+body{
+    background-image: url('css/assets/background_inicio.png');
+    background-position: center;
+    background-size: cover;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 100vh;
+    width: auto;
+}
+
+h1{
+    font-family: "Homemade Apple", cursive;
+    color: #BC524D;
+    position: absolute;
+    top: 39%;
+    left: 6%;
+    font-size: 50px;
+}
+
+p{
+    word-break:normal;
+    width: 53%;
+    position: absolute;
+    top: 62%;
+    left: 6%;
+    font-size: 23px;
+
+    font-family: "Indie Flower", cursive;
+    font-weight: 1000;
+
+    color: #B54038; 
+    -webkit-text-stroke: 0.3px #B54038;
+}
