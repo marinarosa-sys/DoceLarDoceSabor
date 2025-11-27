@@ -4,44 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Explorar Receitas</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="../static/css/menu.css">
+  <link rel="stylesheet" href="../static/css/minhas_receitas.css">
 </head>
 <body>
-  <main class="container">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Voltar ao menu do usuário</a>
-    <h1>Minhas receitas</h1>
-    <div class="acoes">
-      <a href="{{ url_for('nova_receita') }}" class="btn">➕ Nova Receita</a>
-    </div>
 
-    <!-- Barra de busca -->
-    <form method="get" action="{{ url_for('explorar') }}" class="search-bar">
-      <input type="text" name="q" placeholder="Buscar receita..." value="{{ request.args.get('q', '') }}">
-      <button type="submit">Buscar</button>
+  <div id="menu" class="menu">
+    <button id="toggle-btn" class="toggle-btn">←</button>
+    <ul>
+      <li>
+        <img class="img_menu" src="../static/css/assets/homem-usuario 1.png" alt="">
+        <a href="{{ url_for('editar_conta') }}">Perfil</a>
+          
+    </li>
+      <li class="ativo"><img class="img_menu" src="../static/css/assets/coracao 1.png" alt=""><a href="{{ url_for('favoritos') }}">Favoritos</a></li>
+      <li><img class="img_menu" src="../static/css/assets/panela 1.png" alt=""><a href="{{ url_for('preferencias') }}">Preferências</a></li>
+      <li><img class="img_menu" src="../static/css/assets/abra-o-livro 1.png" alt=""><a href="{{ url_for('minhas_receitas') }}">Minhas Receitas</a></li>
+      <li><img class="img_menu" src="../static/css/assets/lupa (1) 1.png" alt=""><a href="{{ url_for('dashboard') }}">Explorar</a></li>
+    </ul>
+  </div>
+
+  <img src="../static/css/assets/logo-docelar.png" class="logo-cantinho" alt="Logo Doce Lar Doce Sabor">
+  <img src="../static/css/assets/panqueca.png" class="bichinho-topo" alt="Bichinho panqueca">
+
+  <main class="container">
+    
+    <h2>Minhas Receitas</h2>
+    <p class="subtitulo">Aqui você encontra o seu próprio livro de receitas!</p>
+
+    <form method="get" action="{{ url_for('minhas_receitas') }}" class="search-bar">
+      <input type="text" name="q" placeholder="Busque pela sua receita..." value="{{ request.args.get('q', '') }}">
+      <button type="submit"></button>
     </form>
 
     <div class="grid">
       {% for receita in receitas %}
       <article class="card">
-        <img src="{{ url_for('static', filename=receita.imagem) }}" alt="{{ receita.titulo }}">
+        <img src="{{ url_for('static', filename=receita.imagem or 'imagens_receitas/padrao.png') }}" alt="{{ receita.titulo }}">
         <div class="card-content">
-          <h2>{{ receita.titulo }}</h2>
-          <p><strong>Categoria:</strong> {{ receita.categoria or 'Não informada' }}</p>
+          <h3>{{ receita.titulo }}</h3>
+          <p><strong>Categoria:</strong> {{ receita.categoria.replace('_', ' ') if receita.categoria else 'Não informada' }}</p>
 
-          {% if receita.utensilios %}
-          <p><strong>Utensílios:</strong> {{ receita.utensilios }}</p>
-          {% endif %}
+          <a class="btn editar-btn" href="{{ url_for('editar_receita', id=receita.id) }}">Editar</a>
 
-          {% if receita.ingredientes_receita %}
-          <p><strong>Ingredientes:</strong></p>
-          <ul>
-            {% for ir in receita.ingredientes_receita %}
-              <li>{{ ir.quantidade_ingrediente_receita }} {{ ir.ingrediente.nome_ingrediente }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          <div class="icons-card">            
 
-          <a class="btn" href="{{ url_for('detalhe_receita', id=receita.id) }}">Ver Detalhes</a>
+            <!-- REMOVER -->
+            <button class="btn remover-btn" data-id="{{ receita.id }}">✖</button>
+
+            <a class="btn" href="{{ url_for('detalhe_receita', id=receita.id) }}">➜</a>
+
+          </div>
         </div>
       </article>
       {% endfor %}
@@ -50,6 +63,45 @@
       <p>Nenhuma receita encontrada.</p>
       {% endif %}
     </div>
+
+    <div class="acoes">
+      <a href="{{ url_for('nova_receita') }}" class="btn">Adicionar receita +</a>
+    </div>
+
   </main>
+
+  <div id="modal-remover" class="modal hidden">
+    <div class="modal-content">
+      <p>Tem certeza que deseja remover esta receita?</p>
+
+      <div class="modal-buttons">
+        <button id="confirmar-remocao" class="btn remover">Sim, remover</button>
+        <button id="cancelar-remocao" class="btn cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../static/css/script.js"></script>
+
+  <script>
+    let receitaIdParaRemover = null;
+    const modal = document.getElementById("modal-remover");
+    const confirmar = document.getElementById("confirmar-remocao");
+    const cancelar = document.getElementById("cancelar-remocao");
+
+    document.querySelectorAll(".remover-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            receitaIdParaRemover = this.dataset.id;
+            modal.classList.remove("hidden");
+        });
+    });
+
+    cancelar.onclick = () => modal.classList.add("hidden");
+
+    confirmar.onclick = () => {
+        window.location.href = `/remover_receita/${receitaIdParaRemover}`;
+    };
+  </script>
+
 </body>
 </html>

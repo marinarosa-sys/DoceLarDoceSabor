@@ -1,3 +1,4 @@
+<!-- pagina Explorar -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -32,32 +33,49 @@
       </div>
     </div>
 
+    <!-- ===================== -->
+    <!-- SEÇÃO DE RECOMENDAÇÕES -->
+    <!-- ===================== -->
     <img src="../static/css/assets/Group 81.png" alt="" class="icon-vermelho-explorar">
-    <div class="recomendacoes">
-      <div class="caixa-recomendacoes">
-        <h1>Recomendações para você</h1>
-      </div>
-    </div>
-      <h1>Explore novos sabores!</h1>
+    <section id="recomendacoes" style="margin-top: 2rem;">
+      <h2>Recomendações para você</h2>
+      <div id="lista-recomendacoes" class="grid"></div>
+    </section>
+
+    <!-- ===================== -->
+    <!-- LISTAGEM NORMAL DE RECEITAS -->
+    <!-- ===================== -->
+
     <div class="grid">
       
       {% for receita in receitas %}
       <article class="card">
-        <img src="{{ url_for('static', filename=receita.imagem) }}" alt="{{ receita.titulo }}">
+        <img src="{{ url_for('static', filename=receita.imagem if receita.imagem else 'imagens_receitas/padrao.png') }}" alt="{{ receita.titulo }}">
         <div class="card-content">
-          <div class="layout-card">
-            <div>
-              <h2>{{ receita.titulo }}</h2>
-              <p>{{ receita.categoria or 'Não informada' }}</p>
-            </div>
-            <form action="{{ url_for('favoritar', receita_id=receita.id) }}" method="POST" style="display:inline;">
-              <button type="submit" class="btn-favorito" title="Adicionar aos favoritos">❤️</button>
-            </form>
-          </div>
+          <h2>{{ receita.titulo }}</h2>
+          <p><strong>Categoria:</strong> {{ (receita.categoria or 'Não informada')|replace('_', ' ')|title }}</p>
 
-          <a class="btn" href="{{ url_for('detalhe_receita', id=receita.id) }}"></a>
+          {% if receita.utensilios %}
+          <p><strong>Utensílios:</strong> {{ receita.utensilios }}</p>
+          {% endif %}
 
-          
+          {% if receita.ingredientes_receita %}
+          <p><strong>Ingredientes:</strong></p>
+          <ul>
+            {% for item in receita.ingredientes_receita %}
+              <li>
+                {{ item.quantidade_ingrediente_receita }}
+                de {{ item.ingrediente.nome_ingrediente }}
+              </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          <a class="btn" href="{{ url_for('detalhe_receita', id=receita.id) }}">Ver Detalhes</a>
+
+          <form action="{{ url_for('favoritar', receita_id=receita.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn-favorito" title="Adicionar aos favoritos">❤️</button>
+          </form>
         </div>
       </article>
       {% endfor %}
@@ -67,5 +85,39 @@
       {% endif %}
     </div>
   </main>
+
+  <!-- Script para buscar recomendações da IA -->
+  <script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const resposta = await fetch("/recomendacoes");
+      if (!resposta.ok) return;
+
+      const receitas = await resposta.json();
+      const container = document.getElementById("lista-recomendacoes");
+
+      if (receitas.length === 0) {
+        container.innerHTML = "<p>Nenhuma recomendação disponível no momento.</p>";
+        return;
+      }
+
+      receitas.forEach(r => {
+        const card = document.createElement("article");
+        card.classList.add("card");
+        card.innerHTML = `
+          <img src="/static/${r.imagem}" alt="${r.titulo}">
+          <div class="card-content">
+            <h3>${r.titulo}</h3>
+            <p><strong>Categoria:</strong> ${r.categoria}</p>
+            <a href="/detalhe_receita/${r.id}" class="btn">Ver Detalhes</a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    } catch (err) {
+      console.error("Erro ao carregar recomendações:", err);
+    }
+  });
+  </script>
 </body>
 </html>
